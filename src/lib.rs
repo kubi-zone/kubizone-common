@@ -91,6 +91,18 @@ impl DomainName {
     }
 }
 
+impl From<PartiallyQualifiedDomainName> for DomainName {
+    fn from(value: PartiallyQualifiedDomainName) -> Self {
+        DomainName::Partial(value)
+    }
+}
+
+impl From<FullyQualifiedDomainName> for DomainName {
+    fn from(value: FullyQualifiedDomainName) -> Self {
+        DomainName::Full(value)
+    }
+}
+
 impl From<String> for DomainName {
     fn from(domain: String) -> Self {
         if domain.ends_with('.') {
