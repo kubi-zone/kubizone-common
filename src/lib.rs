@@ -10,10 +10,16 @@ pub struct DomainIsPartiallyQualifiedError;
 pub struct DomainIsFullyQualifiedError;
 
 #[derive(
-    Serialize, Deserialize, Clone, Debug, Default, JsonSchema, Hash, PartialEq, Eq, PartialOrd, Ord,
+    Serialize, Deserialize, Clone, Debug, JsonSchema, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
 #[serde(transparent)]
 pub struct FullyQualifiedDomainName(pub String);
+
+impl Default for FullyQualifiedDomainName {
+    fn default() -> Self {
+        Self(String::from("."))
+    }
+}
 
 impl TryFrom<String> for FullyQualifiedDomainName {
     type Error = DomainIsPartiallyQualifiedError;
@@ -88,6 +94,12 @@ impl DomainName {
             DomainName::Full(full) => Some(full),
             _ => None,
         }
+    }
+}
+
+impl Default for DomainName {
+    fn default() -> Self {
+        DomainName::Full(FullyQualifiedDomainName::default())
     }
 }
 
