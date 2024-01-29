@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, ops::Add};
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -102,6 +102,22 @@ impl Display for PartiallyQualifiedDomainName {
 impl AsRef<str> for PartiallyQualifiedDomainName {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+
+impl Add<FullyQualifiedDomainName> for PartiallyQualifiedDomainName {
+    type Output = FullyQualifiedDomainName;
+
+    fn add(self, rhs: FullyQualifiedDomainName) -> Self::Output {
+        FullyQualifiedDomainName(format!("{self}.{rhs}"))
+    }
+}
+
+impl Add for PartiallyQualifiedDomainName {
+    type Output = PartiallyQualifiedDomainName;
+
+    fn add(self, rhs: PartiallyQualifiedDomainName) -> Self::Output {
+        PartiallyQualifiedDomainName(format!("{self}.{rhs}"))
     }
 }
 
