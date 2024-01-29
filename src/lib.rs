@@ -31,7 +31,7 @@ impl TryFrom<String> for FullyQualifiedDomainName {
     type Error = DomainIsPartiallyQualifiedError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        if value.ends_with('.') {
+        if !value.ends_with('.') {
             Err(DomainIsPartiallyQualifiedError)
         } else {
             Ok(FullyQualifiedDomainName(value))
@@ -43,7 +43,7 @@ impl TryFrom<&str> for FullyQualifiedDomainName {
     type Error = DomainIsPartiallyQualifiedError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
-        if value.ends_with('.') {
+        if !value.ends_with('.') {
             Err(DomainIsPartiallyQualifiedError)
         } else {
             Ok(FullyQualifiedDomainName(value.to_string()))
