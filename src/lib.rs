@@ -15,6 +15,12 @@ pub struct DomainIsFullyQualifiedError;
 #[serde(transparent)]
 pub struct FullyQualifiedDomainName(pub String);
 
+impl FullyQualifiedDomainName {
+    pub fn is_subdomain_of(&self, parent: &FullyQualifiedDomainName) -> bool {
+        self.0.ends_with(parent.as_ref())
+    }
+}
+
 impl Default for FullyQualifiedDomainName {
     fn default() -> Self {
         Self(String::from("."))
