@@ -33,6 +33,18 @@ impl TryFrom<String> for FullyQualifiedDomainName {
     }
 }
 
+impl TryFrom<&str> for FullyQualifiedDomainName {
+    type Error = DomainIsPartiallyQualifiedError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.ends_with('.') {
+            Err(DomainIsPartiallyQualifiedError)
+        } else {
+            Ok(FullyQualifiedDomainName(value.to_string()))
+        }
+    }
+}
+
 impl Display for FullyQualifiedDomainName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)
@@ -59,6 +71,18 @@ impl TryFrom<String> for PartiallyQualifiedDomainName {
             Err(DomainIsFullyQualifiedError)
         } else {
             Ok(PartiallyQualifiedDomainName(value))
+        }
+    }
+}
+
+impl TryFrom<&str> for PartiallyQualifiedDomainName {
+    type Error = DomainIsFullyQualifiedError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        if value.ends_with('.') {
+            Err(DomainIsFullyQualifiedError)
+        } else {
+            Ok(PartiallyQualifiedDomainName(value.to_string()))
         }
     }
 }
@@ -121,6 +145,16 @@ impl From<String> for DomainName {
             DomainName::Full(FullyQualifiedDomainName(domain))
         } else {
             DomainName::Partial(PartiallyQualifiedDomainName(domain))
+        }
+    }
+}
+
+impl From<&str> for DomainName {
+    fn from(domain: &str) -> Self {
+        if domain.ends_with('.') {
+            DomainName::Full(FullyQualifiedDomainName(domain.to_string()))
+        } else {
+            DomainName::Partial(PartiallyQualifiedDomainName(domain.to_string()))
         }
     }
 }
