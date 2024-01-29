@@ -112,6 +112,20 @@ pub enum DomainName {
 }
 
 impl DomainName {
+    pub fn is_fully_qualified(&self) -> bool {
+        match self {
+            DomainName::Full(_) => true,
+            DomainName::Partial(_) => false,
+        }
+    }
+
+    pub fn is_partially_qualified(&self) -> bool {
+        match self {
+            DomainName::Full(_) => false,
+            DomainName::Partial(_) => true,
+        }
+    }
+
     pub fn as_partial(&self) -> Option<&PartiallyQualifiedDomainName> {
         match self {
             DomainName::Partial(partial) => Some(partial),
