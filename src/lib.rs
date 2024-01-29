@@ -105,18 +105,18 @@ impl AsRef<str> for PartiallyQualifiedDomainName {
     }
 }
 
-impl Add<FullyQualifiedDomainName> for PartiallyQualifiedDomainName {
+impl Add<&FullyQualifiedDomainName> for &PartiallyQualifiedDomainName {
     type Output = FullyQualifiedDomainName;
 
-    fn add(self, rhs: FullyQualifiedDomainName) -> Self::Output {
+    fn add(self, rhs: &FullyQualifiedDomainName) -> Self::Output {
         FullyQualifiedDomainName(format!("{self}.{rhs}"))
     }
 }
 
-impl Add for PartiallyQualifiedDomainName {
+impl Add for &PartiallyQualifiedDomainName {
     type Output = PartiallyQualifiedDomainName;
 
-    fn add(self, rhs: PartiallyQualifiedDomainName) -> Self::Output {
+    fn add(self, rhs: &PartiallyQualifiedDomainName) -> Self::Output {
         PartiallyQualifiedDomainName(format!("{self}.{rhs}"))
     }
 }
