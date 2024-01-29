@@ -82,14 +82,14 @@ pub enum DomainName {
 }
 
 impl DomainName {
-    pub fn partial(&self) -> Option<&PartiallyQualifiedDomainName> {
+    pub fn as_partial(&self) -> Option<&PartiallyQualifiedDomainName> {
         match self {
             DomainName::Partial(partial) => Some(partial),
             _ => None,
         }
     }
 
-    pub fn full(&self) -> Option<&FullyQualifiedDomainName> {
+    pub fn as_full(&self) -> Option<&FullyQualifiedDomainName> {
         match self {
             DomainName::Full(full) => Some(full),
             _ => None,
