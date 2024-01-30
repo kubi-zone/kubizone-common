@@ -125,7 +125,7 @@ impl Serialize for PartiallyQualifiedDomainName {
 #[cfg(test)]
 mod test {
     use crate::{
-        error::PartiallyQualifiedDomainNameError, segment::DomainSegment,
+        error::PartiallyQualifiedDomainNameError, segment::DomainSegment, FullyQualifiedDomainName,
         PartiallyQualifiedDomainName,
     };
 
@@ -146,5 +146,14 @@ mod test {
             PartiallyQualifiedDomainName::try_from("example.org."),
             Err(PartiallyQualifiedDomainNameError::DomainIsFullyQualified)
         );
+    }
+
+    #[test]
+    fn addition() {
+        assert_eq!(
+            &PartiallyQualifiedDomainName::try_from("test").unwrap()
+                + &FullyQualifiedDomainName::try_from("example.org.").unwrap(),
+            FullyQualifiedDomainName::try_from("test.example.org.").unwrap()
+        )
     }
 }
