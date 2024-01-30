@@ -17,7 +17,7 @@ impl Pattern {
         self.0.iter()
     }
 
-    pub fn with_origin(&self, origin: FullyQualifiedDomainName) -> Pattern {
+    pub fn with_origin(&self, origin: &FullyQualifiedDomainName) -> Pattern {
         let mut pattern = self.clone();
 
         if self.0.last().is_some_and(PatternSegment::is_origin) {
@@ -354,7 +354,7 @@ mod tests {
         assert!(!pattern.matches(&DomainName::try_from("example.org.").unwrap()));
 
         assert!(pattern
-            .with_origin(FullyQualifiedDomainName::try_from("org.").unwrap())
+            .with_origin(&FullyQualifiedDomainName::try_from("org.").unwrap())
             .matches(&DomainName::try_from("example.org.").unwrap()));
     }
 }
