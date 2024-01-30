@@ -1,7 +1,9 @@
+mod dn;
 mod fqdn;
 mod pqdn;
 mod segment;
 
+pub use dn::DomainName;
 pub use fqdn::FullyQualifiedDomainName;
 pub use pqdn::PartiallyQualifiedDomainName;
 
