@@ -1,5 +1,7 @@
-use std::fmt::Display;
+use std::fmt::{Display, Write};
 
+use schemars::JsonSchema;
+use serde::{de::Error, Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::{segment::DomainSegment, DomainName, FullyQualifiedDomainName};
@@ -35,7 +37,9 @@ impl Pattern {
         if domain_segments.len() < pattern_segments.len() {
             // Patterns longer than the domain segment cannot possibly match.
             return false;
-        } else if domain_segments.len() > pattern_segments.len()
+        }
+
+        if domain_segments.len() > pattern_segments.len()
             // Domains longer than patterns can never match, unless the first
             // segment of the pattern is a standalone wildcard (*)
             && !self.0.first().is_some_and(|pattern| pattern.as_ref() == "*")
@@ -73,10 +77,58 @@ impl TryFrom<&str> for Pattern {
             value
                 .trim_end_matches('.')
                 .split('.')
-                .into_iter()
                 .map(PatternSegment::try_from),
         )?;
         Ok(Pattern(segments))
+    }
+}
+
+impl TryFrom<String> for Pattern {
+    type Error = PatternSegmentError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::try_from(value.as_ref())
+    }
+}
+
+impl Display for Pattern {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for segment in &self.0 {
+            write!(f, "{}", segment)?;
+            f.write_char('.')?;
+        }
+
+        Ok(())
+    }
+}
+
+impl JsonSchema for Pattern {
+    fn schema_name() -> String {
+        <String as schemars::JsonSchema>::schema_name()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        <String as schemars::JsonSchema>::json_schema(gen)
+    }
+}
+
+impl<'de> Deserialize<'de> for Pattern {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+
+        Self::try_from(value).map_err(D::Error::custom)
+    }
+}
+
+impl Serialize for Pattern {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        self.to_string().serialize(serializer)
     }
 }
 
@@ -101,6 +153,8 @@ impl PatternSegment {
         self.0 == "@"
     }
 
+    // Segments cannot be empty
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.len()
     }
