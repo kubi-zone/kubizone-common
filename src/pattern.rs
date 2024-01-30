@@ -196,7 +196,7 @@ impl AsRef<str> for PatternSegment {
 mod tests {
     use crate::{
         error::PatternSegmentError, pattern::PatternSegment, segment::DomainSegment, DomainName,
-        Pattern,
+        FullyQualifiedDomainName, Pattern,
     };
 
     #[test]
@@ -291,5 +291,16 @@ mod tests {
             fqdn.matches(&DomainName::try_from("example.org.").unwrap()),
             pqdn.matches(&DomainName::try_from("example.org.").unwrap())
         );
+    }
+
+    #[test]
+    fn origin_insertion() {
+        let pattern = Pattern::try_from("example.@").unwrap();
+
+        assert!(!pattern.matches(&DomainName::try_from("example.org.").unwrap()));
+
+        assert!(pattern
+            .with_origin(FullyQualifiedDomainName::try_from("org.").unwrap())
+            .matches(&DomainName::try_from("example.org.").unwrap()));
     }
 }
