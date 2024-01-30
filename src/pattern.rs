@@ -2,7 +2,83 @@ use std::fmt::Display;
 
 use thiserror::Error;
 
-use crate::segment::DomainSegment;
+use crate::{segment::DomainSegment, DomainName, FullyQualifiedDomainName};
+
+#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum PatternError {}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Pattern(Vec<PatternSegment>);
+
+impl Pattern {
+    pub fn iter(&self) -> impl Iterator<Item = &PatternSegment> + '_ {
+        self.0.iter()
+    }
+
+    pub fn with_origin(&self, origin: FullyQualifiedDomainName) -> Pattern {
+        let mut pattern = self.clone();
+
+        if self.0.last().is_some_and(PatternSegment::is_origin) {
+            pattern.0.pop();
+            pattern
+                .0
+                .extend(origin.iter().cloned().map(PatternSegment::from));
+        }
+
+        pattern
+    }
+
+    pub fn matches(&self, domain: &DomainName) -> bool {
+        let domain_segments = domain.as_ref().iter().rev();
+        let pattern_segments = self.0[..].iter().rev();
+
+        if domain_segments.len() < pattern_segments.len() {
+            // Patterns longer than the domain segment cannot possibly match.
+            return false;
+        } else if domain_segments.len() > pattern_segments.len()
+            // Domains longer than patterns can never match, unless the first
+            // segment of the pattern is a standalone wildcard (*)
+            && !self.0.first().is_some_and(|pattern| pattern.as_ref() == "*")
+        {
+            return false;
+        }
+
+        for (pattern, domain) in pattern_segments.zip(domain_segments) {
+            // If we have hit a pattern segment containing only a wildcard, the rest of the
+            // domain segments are automatically matched.
+            if pattern.as_ref() == "*" {
+                return true;
+            }
+
+            if !pattern.matches(domain) {
+                return false;
+            }
+        }
+
+        true
+    }
+}
+
+impl FromIterator<PatternSegment> for Pattern {
+    fn from_iter<T: IntoIterator<Item = PatternSegment>>(iter: T) -> Self {
+        Pattern(iter.into_iter().collect())
+    }
+}
+
+impl TryFrom<&str> for Pattern {
+    type Error = PatternSegmentError;
+
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let segments = Result::from_iter(
+            value
+                .trim_end_matches('.')
+                .split('.')
+                .into_iter()
+                .map(PatternSegment::try_from),
+        )?;
+        Ok(Pattern(segments))
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PatternSegment(String);
@@ -19,6 +95,14 @@ impl PatternSegment {
         }
 
         false
+    }
+
+    pub fn is_origin(&self) -> bool {
+        self.0 == "@"
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
     }
 }
 
@@ -71,14 +155,20 @@ impl TryFrom<&str> for PatternSegment {
         }
 
         if value.chars().filter(|c| *c == '*').count() > 1 {
-            return Err(PatternSegmentError::MultipleWildcards)
+            return Err(PatternSegmentError::MultipleWildcards);
         }
 
         if value.contains('@') && value.len() != 1 {
-            return Err(PatternSegmentError::NonStandaloneOrigin)
+            return Err(PatternSegmentError::NonStandaloneOrigin);
         }
 
         Ok(PatternSegment(value))
+    }
+}
+
+impl From<DomainSegment> for PatternSegment {
+    fn from(value: DomainSegment) -> Self {
+        PatternSegment(value.as_ref().to_string())
     }
 }
 
@@ -104,7 +194,10 @@ impl AsRef<str> for PatternSegment {
 
 #[cfg(test)]
 mod tests {
-    use crate::{pattern::PatternSegment, segment::DomainSegment};
+    use crate::{
+        error::PatternSegmentError, pattern::PatternSegment, segment::DomainSegment, DomainName,
+        Pattern,
+    };
 
     #[test]
     fn literal_matches() {
@@ -143,9 +236,10 @@ mod tests {
 
     #[test]
     fn multiple_wildcards() {
-        assert!(!PatternSegment::try_from("*amp*")
-            .unwrap()
-            .matches(&DomainSegment::try_from("example").unwrap()))
+        assert_eq!(
+            PatternSegment::try_from("*amp*"),
+            Err(PatternSegmentError::MultipleWildcards)
+        );
     }
 
     #[test]
@@ -153,5 +247,48 @@ mod tests {
         assert!(!PatternSegment::try_from("@")
             .unwrap()
             .matches(&DomainSegment::try_from("example").unwrap()))
+    }
+
+    #[test]
+    fn simple_pattern_match() {
+        assert!(Pattern::try_from("*.example.org")
+            .unwrap()
+            .matches(&DomainName::try_from("www.example.org").unwrap()));
+    }
+
+    #[test]
+    fn longer_pattern_than_domain() {
+        assert!(!Pattern::try_from("*.*.example.org")
+            .unwrap()
+            .matches(&DomainName::try_from("www.example.org").unwrap()));
+    }
+
+    #[test]
+    fn longer_domain_than_pattern() {
+        assert!(Pattern::try_from("*.example.org")
+            .unwrap()
+            .matches(&DomainName::try_from("www.sub.test.dev.example.org").unwrap()));
+    }
+
+    #[test]
+    fn wildcard_segments() {
+        let pattern = Pattern::try_from("dev-*.example.org").unwrap();
+
+        assert!(pattern.matches(&DomainName::try_from("dev-1.example.org").unwrap()));
+        assert!(pattern.matches(&DomainName::try_from("dev-hello.example.org").unwrap()));
+        assert!(!pattern.matches(&DomainName::try_from("dev.example.org").unwrap()));
+        assert!(!pattern.matches(&DomainName::try_from("www.dev-1.example.org").unwrap()));
+    }
+
+    #[test]
+    fn patterns_assumed_wildcard() {
+        let fqdn = Pattern::try_from("example.org.").unwrap();
+        let pqdn = Pattern::try_from("example.org").unwrap();
+        assert_eq!(fqdn, pqdn);
+
+        assert_eq!(
+            fqdn.matches(&DomainName::try_from("example.org.").unwrap()),
+            pqdn.matches(&DomainName::try_from("example.org.").unwrap())
+        );
     }
 }

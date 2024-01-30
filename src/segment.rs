@@ -5,6 +5,12 @@ use thiserror::Error;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DomainSegment(String);
 
+impl DomainSegment {
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+}
+
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DomainSegmentError {
     #[error("illegal hyphen at position {0}")]
