@@ -1,12 +1,19 @@
+use std::fmt::Display;
+
+use thiserror::Error;
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DomainSegment(String);
 
-impl DomainSegment {}
-
-#[derive(Debug, Clone)]
+#[derive(Error, Debug, Clone)]
 pub enum DomainSegmentError {
+    #[error("illegal hyphen at position {0}")]
     IllegalHyphen(usize),
+    #[error("invalid character {0}")]
     InvalidCharacter(char),
+    #[error("segment too long {0} > 63")]
     TooLong(usize),
+    #[error("segment is an empty string")]
     EmptyString,
 }
 
@@ -51,5 +58,17 @@ impl TryFrom<String> for DomainSegment {
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         Self::try_from(value.as_str())
+    }
+}
+
+impl Display for DomainSegment {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl AsRef<str> for DomainSegment {
+    fn as_ref(&self) -> &str {
+        self.0.as_str()
     }
 }
