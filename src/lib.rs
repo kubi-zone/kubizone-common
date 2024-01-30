@@ -1,3 +1,5 @@
+mod segment;
+
 use std::{fmt::Display, ops::Add};
 
 use schemars::JsonSchema;
