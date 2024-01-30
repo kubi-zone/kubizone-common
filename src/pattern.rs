@@ -272,11 +272,12 @@ mod tests {
 
     #[test]
     fn wildcard_segments() {
-        let pattern = Pattern::try_from("dev-*.example.org").unwrap();
+        let pattern = Pattern::try_from("dev*.example.org").unwrap();
 
+        assert!(pattern.matches(&DomainName::try_from("dev.example.org").unwrap()));
         assert!(pattern.matches(&DomainName::try_from("dev-1.example.org").unwrap()));
         assert!(pattern.matches(&DomainName::try_from("dev-hello.example.org").unwrap()));
-        assert!(!pattern.matches(&DomainName::try_from("dev.example.org").unwrap()));
+        assert!(!pattern.matches(&DomainName::try_from("de.example.org").unwrap()));
         assert!(!pattern.matches(&DomainName::try_from("www.dev-1.example.org").unwrap()));
     }
 
