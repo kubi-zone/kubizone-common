@@ -156,4 +156,13 @@ mod test {
             FullyQualifiedDomainName::try_from("test.example.org.").unwrap()
         )
     }
+
+    #[test]
+    fn pqdn_addition() {
+        assert_eq!(
+            &PartiallyQualifiedDomainName::try_from("test").unwrap()
+                + &PartiallyQualifiedDomainName::try_from("example").unwrap(),
+            PartiallyQualifiedDomainName::try_from("test.example").unwrap()
+        )
+    }
 }
