@@ -12,7 +12,7 @@ use crate::{
     FullyQualifiedDomainName,
 };
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PartiallyQualifiedDomainNameError {
     #[error("domain is fully qualified")]
     DomainIsFullyQualified,
@@ -119,5 +119,32 @@ impl Serialize for PartiallyQualifiedDomainName {
         S: serde::Serializer,
     {
         self.to_string().serialize(serializer)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{
+        error::PartiallyQualifiedDomainNameError, segment::DomainSegment,
+        PartiallyQualifiedDomainName,
+    };
+
+    #[test]
+    fn construct_pqdn() {
+        assert_eq!(
+            PartiallyQualifiedDomainName::try_from("example.org"),
+            Ok(PartiallyQualifiedDomainName::from_iter([
+                DomainSegment::try_from("example").unwrap(),
+                DomainSegment::try_from("org").unwrap()
+            ]))
+        );
+    }
+
+    #[test]
+    fn pqdn_from_fqdn_fails() {
+        assert_eq!(
+            PartiallyQualifiedDomainName::try_from("example.org."),
+            Err(PartiallyQualifiedDomainNameError::DomainIsFullyQualified)
+        );
     }
 }

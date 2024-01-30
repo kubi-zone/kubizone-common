@@ -6,7 +6,7 @@ use thiserror::Error;
 
 use crate::segment::{DomainSegment, DomainSegmentError};
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FullyQualifiedDomainNameError {
     #[error("domain is partially qualified")]
     DomainIsPartiallyQualified,
@@ -48,7 +48,12 @@ impl TryFrom<&str> for FullyQualifiedDomainName {
         if !value.ends_with('.') {
             Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified)
         } else {
-            let segments = Result::from_iter(value.split('.').map(DomainSegment::try_from))?;
+            let segments = Result::from_iter(
+                value
+                    .trim_end_matches('.')
+                    .split('.')
+                    .map(DomainSegment::try_from),
+            )?;
 
             Ok(FullyQualifiedDomainName(segments))
         }
@@ -99,5 +104,31 @@ impl Serialize for FullyQualifiedDomainName {
         S: serde::Serializer,
     {
         self.to_string().serialize(serializer)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::{
+        fqdn::FullyQualifiedDomainNameError, segment::DomainSegment, FullyQualifiedDomainName,
+    };
+
+    #[test]
+    fn construct_fqdn() {
+        assert_eq!(
+            FullyQualifiedDomainName::try_from("example.org."),
+            Ok(FullyQualifiedDomainName::from_iter([
+                DomainSegment::try_from("example").unwrap(),
+                DomainSegment::try_from("org").unwrap()
+            ]))
+        );
+    }
+
+    #[test]
+    fn fqdn_from_pqdn_fails() {
+        assert_eq!(
+            FullyQualifiedDomainName::try_from("example.org"),
+            Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified)
+        );
     }
 }

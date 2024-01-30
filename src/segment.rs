@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DomainSegment(String);
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DomainSegmentError {
     #[error("illegal hyphen at position {0}")]
     IllegalHyphen(usize),
@@ -70,5 +70,50 @@ impl Display for DomainSegment {
 impl AsRef<str> for DomainSegment {
     fn as_ref(&self) -> &str {
         self.0.as_str()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::segment::{DomainSegment, DomainSegmentError};
+
+    #[test]
+    fn segment_construction() {
+        assert_eq!(DomainSegment::try_from("abcd").unwrap().as_ref(), "abcd");
+
+        assert_eq!(
+            DomainSegment::try_from(""),
+            Err(DomainSegmentError::EmptyString)
+        );
+    }
+
+    #[test]
+    fn invalid_character() {
+        assert_eq!(
+            DomainSegment::try_from("ab.cd"),
+            Err(DomainSegmentError::InvalidCharacter('.'))
+        );
+    }
+
+    #[test]
+    fn invalid_hyphens() {
+        assert_eq!(DomainSegment::try_from("ab-cd").unwrap().as_ref(), "ab-cd");
+
+        assert_eq!(DomainSegment::try_from("abc-d").unwrap().as_ref(), "abc-d");
+
+        assert_eq!(
+            DomainSegment::try_from("ab--cd"),
+            Err(DomainSegmentError::IllegalHyphen(3))
+        );
+
+        assert_eq!(
+            DomainSegment::try_from("-abcd"),
+            Err(DomainSegmentError::IllegalHyphen(1))
+        );
+
+        assert_eq!(
+            DomainSegment::try_from("abcd-"),
+            Err(DomainSegmentError::IllegalHyphen(5))
+        );
     }
 }
