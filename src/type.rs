@@ -291,144 +291,144 @@ pub enum Type {
 
 impl Type {
     pub fn is_a(&self) -> bool {
-        matches!(self, Self::A)
+        *self == Self::A
     }
     pub fn is_aaaa(&self) -> bool {
-        matches!(self, Self::AAAA)
+        *self == Self::AAAA
     }
     pub fn is_afsdb(&self) -> bool {
-        matches!(self, Self::AFSDB)
+        *self == Self::AFSDB
     }
     pub fn is_apl(&self) -> bool {
-        matches!(self, Self::APL)
+        *self == Self::APL
     }
     pub fn is_caa(&self) -> bool {
-        matches!(self, Self::CAA)
+        *self == Self::CAA
     }
     pub fn is_cdnskey(&self) -> bool {
-        matches!(self, Self::CDNSKEY)
+        *self == Self::CDNSKEY
     }
     pub fn is_cds(&self) -> bool {
-        matches!(self, Self::CDS)
+        *self == Self::CDS
     }
     pub fn is_cert(&self) -> bool {
-        matches!(self, Self::CERT)
+        *self == Self::CERT
     }
     pub fn is_cname(&self) -> bool {
-        matches!(self, Self::CNAME)
+        *self == Self::CNAME
     }
     pub fn is_csync(&self) -> bool {
-        matches!(self, Self::CSYNC)
+        *self == Self::CSYNC
     }
     pub fn is_dhcid(&self) -> bool {
-        matches!(self, Self::DHCID)
+        *self == Self::DHCID
     }
     pub fn is_dlv(&self) -> bool {
-        matches!(self, Self::DLV)
+        *self == Self::DLV
     }
     pub fn is_dname(&self) -> bool {
-        matches!(self, Self::DNAME)
+        *self == Self::DNAME
     }
     pub fn is_dnskey(&self) -> bool {
-        matches!(self, Self::DNSKEY)
+        *self == Self::DNSKEY
     }
     pub fn is_ds(&self) -> bool {
-        matches!(self, Self::DS)
+        *self == Self::DS
     }
     pub fn is_eui48(&self) -> bool {
-        matches!(self, Self::EUI48)
+        *self == Self::EUI48
     }
     pub fn is_eui64(&self) -> bool {
-        matches!(self, Self::EUI64)
+        *self == Self::EUI64
     }
     pub fn is_hinfo(&self) -> bool {
-        matches!(self, Self::HINFO)
+        *self == Self::HINFO
     }
     pub fn is_hip(&self) -> bool {
-        matches!(self, Self::HIP)
+        *self == Self::HIP
     }
     pub fn is_https(&self) -> bool {
-        matches!(self, Self::HTTPS)
+        *self == Self::HTTPS
     }
     pub fn is_ipseckey(&self) -> bool {
-        matches!(self, Self::IPSECKEY)
+        *self == Self::IPSECKEY
     }
     pub fn is_key(&self) -> bool {
-        matches!(self, Self::KEY)
+        *self == Self::KEY
     }
     pub fn is_kx(&self) -> bool {
-        matches!(self, Self::KX)
+        *self == Self::KX
     }
     pub fn is_loc(&self) -> bool {
-        matches!(self, Self::LOC)
+        *self == Self::LOC
     }
     pub fn is_mx(&self) -> bool {
-        matches!(self, Self::MX)
+        *self == Self::MX
     }
     pub fn is_naptr(&self) -> bool {
-        matches!(self, Self::NAPTR)
+        *self == Self::NAPTR
     }
     pub fn is_ns(&self) -> bool {
-        matches!(self, Self::NS)
+        *self == Self::NS
     }
     pub fn is_nsec(&self) -> bool {
-        matches!(self, Self::NSEC)
+        *self == Self::NSEC
     }
     pub fn is_nsec3(&self) -> bool {
-        matches!(self, Self::NSEC3)
+        *self == Self::NSEC3
     }
     pub fn is_nsec3param(&self) -> bool {
-        matches!(self, Self::NSEC3PARAM)
+        *self == Self::NSEC3PARAM
     }
     pub fn is_openpgpkey(&self) -> bool {
-        matches!(self, Self::OPENPGPKEY)
+        *self == Self::OPENPGPKEY
     }
     pub fn is_ptr(&self) -> bool {
-        matches!(self, Self::PTR)
+        *self == Self::PTR
     }
     pub fn is_rrsig(&self) -> bool {
-        matches!(self, Self::RRSIG)
+        *self == Self::RRSIG
     }
     pub fn is_rp(&self) -> bool {
-        matches!(self, Self::RP)
+        *self == Self::RP
     }
     pub fn is_sig(&self) -> bool {
-        matches!(self, Self::SIG)
+        *self == Self::SIG
     }
     pub fn is_smimea(&self) -> bool {
-        matches!(self, Self::SMIMEA)
+        *self == Self::SMIMEA
     }
     pub fn is_soa(&self) -> bool {
-        matches!(self, Self::SOA)
+        *self == Self::SOA
     }
     pub fn is_srv(&self) -> bool {
-        matches!(self, Self::SRV)
+        *self == Self::SRV
     }
     pub fn is_sshfp(&self) -> bool {
-        matches!(self, Self::SSHFP)
+        *self == Self::SSHFP
     }
     pub fn is_svcb(&self) -> bool {
-        matches!(self, Self::SVCB)
+        *self == Self::SVCB
     }
     pub fn is_ta(&self) -> bool {
-        matches!(self, Self::TA)
+        *self == Self::TA
     }
     pub fn is_tkey(&self) -> bool {
-        matches!(self, Self::TKEY)
+        *self == Self::TKEY
     }
     pub fn is_tlsa(&self) -> bool {
-        matches!(self, Self::TLSA)
+        *self == Self::TLSA
     }
     pub fn is_tsig(&self) -> bool {
-        matches!(self, Self::TSIG)
+        *self == Self::TSIG
     }
     pub fn is_txt(&self) -> bool {
-        matches!(self, Self::TXT)
+        *self == Self::TXT
     }
     pub fn is_uri(&self) -> bool {
-        matches!(self, Self::URI)
+        *self == Self::URI
     }
     pub fn is_zonemd(&self) -> bool {
-        matches!(self, Self::ZONEMD)
+        *self == Self::ZONEMD
     }
 }
