@@ -3,7 +3,9 @@ mod fqdn;
 mod pattern;
 mod pqdn;
 mod segment;
+mod class;
 
+pub use class::Class;
 pub use dn::DomainName;
 pub use fqdn::FullyQualifiedDomainName;
 pub use pattern::{Pattern, PatternSegment};
