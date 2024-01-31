@@ -45,7 +45,7 @@ impl FullyQualifiedDomainName {
     /// Attempt to construct a FullyQualifiedDomainName from an iterator
     /// over [`DomainSegment`]s. Fails if the iterator contains any Origin (@)
     /// domain segments.
-    pub fn from_iter<T: IntoIterator<Item = DomainSegment>>(
+    pub fn try_from_segments<T: IntoIterator<Item = DomainSegment>>(
         iter: T,
     ) -> Result<Self, FullyQualifiedDomainNameError> {
         let segments: Vec<DomainSegment> = iter.into_iter().collect();
@@ -176,7 +176,10 @@ impl<'a> Sub for &'a FullyQualifiedDomainName {
             }
         }
 
-        Ok(PartiallyQualifiedDomainName::from_iter(own_segments.rev()))
+        // Unwrap safe: Constructing a PQDN from DomainSegments only fails if origin
+        // components are present in any but the last segment. Since we're converting
+        // from an FQDN which cannot contain origins (@), it cannot fail.
+        Ok(PartiallyQualifiedDomainName::try_from_segments(own_segments.rev()).unwrap())
     }
 }
 
@@ -202,7 +205,7 @@ mod test {
     fn construct_fqdn() {
         assert_eq!(
             FullyQualifiedDomainName::try_from("example.org."),
-            Ok(FullyQualifiedDomainName::from_iter([
+            Ok(FullyQualifiedDomainName::try_from_segments([
                 DomainSegment::try_from("example").unwrap(),
                 DomainSegment::try_from("org").unwrap()
             ])
