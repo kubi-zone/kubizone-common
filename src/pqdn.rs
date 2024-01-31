@@ -61,6 +61,22 @@ impl PartiallyQualifiedDomainName {
         }
     }
 
+    /// Replaces trailing `@` domain segments with the provided fully qualified domain name.
+    pub fn with_origin(
+        &self,
+        origin: &FullyQualifiedDomainName,
+    ) -> Result<FullyQualifiedDomainName, PartiallyQualifiedDomainName> {
+        let mut cloned = self.clone();
+
+        if self.0.last().is_some_and(DomainSegment::is_origin) {
+            cloned.0.pop();
+            // Unwrap safe: We just removed the origin, so joining can't fail.
+            Ok((self + origin).unwrap())
+        } else {
+            Err(cloned)
+        }
+    }
+
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
     pub fn iter(&self) -> impl Iterator<Item = &DomainSegment> + '_ {
         self.0.iter()
