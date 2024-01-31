@@ -4,7 +4,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Default, Serialize, Deserialize, JsonSchema, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord,
+    Default, Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
 pub enum Class {
     /// Internet
