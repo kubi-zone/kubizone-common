@@ -44,6 +44,7 @@ impl FullyQualifiedDomainName {
     }
 
     /// Length of the fully qualified domain name as a string, *including* the trailing dot.
+    #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
     }

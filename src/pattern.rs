@@ -136,7 +136,7 @@ impl Serialize for Pattern {
 }
 
 /// Segment of a pattern.
-/// 
+///
 /// Used for matching against a single [`DomainSegment`].
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PatternSegment(String);
@@ -175,7 +175,7 @@ impl PatternSegment {
 pub enum PatternSegmentError {
     /// Domain name segments (and therefore pattern segments)
     /// can contain hyphens, but crucially:
-    /// 
+    ///
     /// * Not at the beginning of a segment.
     /// * Not at the end of a segment.
     /// * Not at the 3rd and 4th position *simultaneously* (used for [Punycode encoding](https://en.wikipedia.org/wiki/Punycode))

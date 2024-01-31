@@ -3,7 +3,7 @@ use std::fmt::Display;
 use thiserror::Error;
 
 /// Segment of a domain.
-/// 
+///
 /// This is the part between dots.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DomainSegment(String);
@@ -19,7 +19,7 @@ impl DomainSegment {
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DomainSegmentError {
     /// Domain name segments can contain hyphens, but crucially:
-    /// 
+    ///
     /// * Not at the beginning of a segment.
     /// * Not at the end of a segment.
     /// * Not at the 3rd and 4th position *simultaneously* (used for [Punycode encoding](https://en.wikipedia.org/wiki/Punycode))

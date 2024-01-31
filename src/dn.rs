@@ -51,6 +51,18 @@ impl DomainName {
             _ => None,
         }
     }
+
+    /// Returns the length of the domain.
+    ///
+    /// Note that fully qualified domain names will include the trailing dot
+    /// in this measurement.
+    #[allow(clippy::len_without_is_empty)]
+    pub fn len(&self) -> usize {
+        match self {
+            DomainName::Full(full) => full.len(),
+            DomainName::Partial(partial) => partial.len(),
+        }
+    }
 }
 
 impl Default for DomainName {
