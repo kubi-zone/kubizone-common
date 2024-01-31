@@ -148,14 +148,14 @@ impl Serialize for FullyQualifiedDomainName {
     }
 }
 
-impl Sub for FullyQualifiedDomainName {
-    type Output = Result<PartiallyQualifiedDomainName, FullyQualifiedDomainName>;
+impl<'a> Sub for &'a FullyQualifiedDomainName {
+    type Output = Result<PartiallyQualifiedDomainName, &'a FullyQualifiedDomainName>;
 
     fn sub(self, rhs: Self) -> Self::Output {
         let mut own_segments = self.0.clone().into_iter().rev();
-        let mut parent_segments = rhs.0.iter().rev();
+        let parent_segments = rhs.0.iter().rev();
 
-        while let Some(parent_domain) = parent_segments.next() {
+        for parent_domain in parent_segments {
             if !own_segments
                 .next()
                 .is_some_and(|segment| &segment == parent_domain)
@@ -165,6 +165,17 @@ impl Sub for FullyQualifiedDomainName {
         }
 
         Ok(PartiallyQualifiedDomainName::from_iter(own_segments.rev()))
+    }
+}
+
+impl Sub for FullyQualifiedDomainName {
+    type Output = Result<PartiallyQualifiedDomainName, FullyQualifiedDomainName>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        match &self - &rhs {
+            Ok(partial) => Ok(partial),
+            Err(_) => Err(self),
+        }
     }
 }
 
