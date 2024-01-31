@@ -61,7 +61,7 @@ impl Display for PartiallyQualifiedDomainName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (index, segment) in self.0.iter().enumerate() {
             segment.fmt(f)?;
-            if index != self.0.len() {
+            if index != self.0.len() - 1 {
                 f.write_char('.')?;
             }
         }
