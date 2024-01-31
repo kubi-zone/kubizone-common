@@ -11,6 +11,7 @@ pub use dn::DomainName;
 pub use fqdn::FullyQualifiedDomainName;
 pub use pattern::{Pattern, PatternSegment};
 pub use pqdn::PartiallyQualifiedDomainName;
+pub use r#type::Type;
 
 pub mod error {
     pub use crate::fqdn::FullyQualifiedDomainNameError;

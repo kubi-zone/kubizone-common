@@ -288,3 +288,147 @@ pub enum Type {
     /// [8976](https://datatracker.ietf.org/doc/html/rfc8976)
     ZONEMD,
 }
+
+impl Type {
+    pub fn is_a(&self) -> bool {
+        matches!(self, Self::A)
+    }
+    pub fn is_aaaa(&self) -> bool {
+        matches!(self, Self::AAAA)
+    }
+    pub fn is_afsdb(&self) -> bool {
+        matches!(self, Self::AFSDB)
+    }
+    pub fn is_apl(&self) -> bool {
+        matches!(self, Self::APL)
+    }
+    pub fn is_caa(&self) -> bool {
+        matches!(self, Self::CAA)
+    }
+    pub fn is_cdnskey(&self) -> bool {
+        matches!(self, Self::CDNSKEY)
+    }
+    pub fn is_cds(&self) -> bool {
+        matches!(self, Self::CDS)
+    }
+    pub fn is_cert(&self) -> bool {
+        matches!(self, Self::CERT)
+    }
+    pub fn is_cname(&self) -> bool {
+        matches!(self, Self::CNAME)
+    }
+    pub fn is_csync(&self) -> bool {
+        matches!(self, Self::CSYNC)
+    }
+    pub fn is_dhcid(&self) -> bool {
+        matches!(self, Self::DHCID)
+    }
+    pub fn is_dlv(&self) -> bool {
+        matches!(self, Self::DLV)
+    }
+    pub fn is_dname(&self) -> bool {
+        matches!(self, Self::DNAME)
+    }
+    pub fn is_dnskey(&self) -> bool {
+        matches!(self, Self::DNSKEY)
+    }
+    pub fn is_ds(&self) -> bool {
+        matches!(self, Self::DS)
+    }
+    pub fn is_eui48(&self) -> bool {
+        matches!(self, Self::EUI48)
+    }
+    pub fn is_eui64(&self) -> bool {
+        matches!(self, Self::EUI64)
+    }
+    pub fn is_hinfo(&self) -> bool {
+        matches!(self, Self::HINFO)
+    }
+    pub fn is_hip(&self) -> bool {
+        matches!(self, Self::HIP)
+    }
+    pub fn is_https(&self) -> bool {
+        matches!(self, Self::HTTPS)
+    }
+    pub fn is_ipseckey(&self) -> bool {
+        matches!(self, Self::IPSECKEY)
+    }
+    pub fn is_key(&self) -> bool {
+        matches!(self, Self::KEY)
+    }
+    pub fn is_kx(&self) -> bool {
+        matches!(self, Self::KX)
+    }
+    pub fn is_loc(&self) -> bool {
+        matches!(self, Self::LOC)
+    }
+    pub fn is_mx(&self) -> bool {
+        matches!(self, Self::MX)
+    }
+    pub fn is_naptr(&self) -> bool {
+        matches!(self, Self::NAPTR)
+    }
+    pub fn is_ns(&self) -> bool {
+        matches!(self, Self::NS)
+    }
+    pub fn is_nsec(&self) -> bool {
+        matches!(self, Self::NSEC)
+    }
+    pub fn is_nsec3(&self) -> bool {
+        matches!(self, Self::NSEC3)
+    }
+    pub fn is_nsec3param(&self) -> bool {
+        matches!(self, Self::NSEC3PARAM)
+    }
+    pub fn is_openpgpkey(&self) -> bool {
+        matches!(self, Self::OPENPGPKEY)
+    }
+    pub fn is_ptr(&self) -> bool {
+        matches!(self, Self::PTR)
+    }
+    pub fn is_rrsig(&self) -> bool {
+        matches!(self, Self::RRSIG)
+    }
+    pub fn is_rp(&self) -> bool {
+        matches!(self, Self::RP)
+    }
+    pub fn is_sig(&self) -> bool {
+        matches!(self, Self::SIG)
+    }
+    pub fn is_smimea(&self) -> bool {
+        matches!(self, Self::SMIMEA)
+    }
+    pub fn is_soa(&self) -> bool {
+        matches!(self, Self::SOA)
+    }
+    pub fn is_srv(&self) -> bool {
+        matches!(self, Self::SRV)
+    }
+    pub fn is_sshfp(&self) -> bool {
+        matches!(self, Self::SSHFP)
+    }
+    pub fn is_svcb(&self) -> bool {
+        matches!(self, Self::SVCB)
+    }
+    pub fn is_ta(&self) -> bool {
+        matches!(self, Self::TA)
+    }
+    pub fn is_tkey(&self) -> bool {
+        matches!(self, Self::TKEY)
+    }
+    pub fn is_tlsa(&self) -> bool {
+        matches!(self, Self::TLSA)
+    }
+    pub fn is_tsig(&self) -> bool {
+        matches!(self, Self::TSIG)
+    }
+    pub fn is_txt(&self) -> bool {
+        matches!(self, Self::TXT)
+    }
+    pub fn is_uri(&self) -> bool {
+        matches!(self, Self::URI)
+    }
+    pub fn is_zonemd(&self) -> bool {
+        matches!(self, Self::ZONEMD)
+    }
+}
