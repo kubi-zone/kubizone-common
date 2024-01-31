@@ -17,7 +17,6 @@ pub enum Class {
     HS,
 }
 
-
 #[cfg(test)]
 mod tests {
     use serde::{Deserialize, Serialize};
@@ -31,13 +30,14 @@ mod tests {
             class: Class,
         }
 
-        let example = vec![ExampleStruct {
-            class: Class::IN
-        }];
+        let example = vec![ExampleStruct { class: Class::IN }];
 
         let serialized = serde_yaml::to_string(&example).unwrap();
         println!("{serialized}");
 
-        assert_eq!(serde_yaml::from_str::<Vec<ExampleStruct>>(&serialized).unwrap(), example);
+        assert_eq!(
+            serde_yaml::from_str::<Vec<ExampleStruct>>(&serialized).unwrap(),
+            example
+        );
     }
 }
