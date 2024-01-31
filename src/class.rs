@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -15,6 +17,16 @@ pub enum Class {
     /// Hesiod
     #[serde(rename = "HS")]
     HS,
+}
+
+impl Display for Class {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Class::IN => f.write_str("IN"),
+            Class::CH => f.write_str("CH"),
+            Class::HS => f.write_str("HS"),
+        }
+    }
 }
 
 #[cfg(test)]

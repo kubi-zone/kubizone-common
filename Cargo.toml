@@ -3,7 +3,7 @@ name = "kubizone-common"
 description = "Typed Rust structures for representing partially and fully qualified domain names."
 repository = "https://github.com/kubi-zone/kubizone-common"
 keywords = ["kubernetes", "kubizone"]
-version = "0.7.2"
+version = "0.7.3"
 edition = "2021"
 license = "MIT"
 

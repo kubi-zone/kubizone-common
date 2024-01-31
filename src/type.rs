@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -430,5 +432,59 @@ impl Type {
     }
     pub fn is_zonemd(&self) -> bool {
         *self == Self::ZONEMD
+    }
+}
+
+impl Display for Type {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::A => f.write_str("A"),
+            Self::AAAA => f.write_str("AAAA"),
+            Self::AFSDB => f.write_str("AFSDB"),
+            Self::APL => f.write_str("APL"),
+            Self::CAA => f.write_str("CAA"),
+            Self::CDNSKEY => f.write_str("CDNSKEY"),
+            Self::CDS => f.write_str("CDS"),
+            Self::CERT => f.write_str("CERT"),
+            Self::CNAME => f.write_str("CNAME"),
+            Self::CSYNC => f.write_str("CSYNC"),
+            Self::DHCID => f.write_str("DHCID"),
+            Self::DLV => f.write_str("DLV"),
+            Self::DNAME => f.write_str("DNAME"),
+            Self::DNSKEY => f.write_str("DNSKEY"),
+            Self::DS => f.write_str("DS"),
+            Self::EUI48 => f.write_str("EUI48"),
+            Self::EUI64 => f.write_str("EUI64"),
+            Self::HINFO => f.write_str("HINFO"),
+            Self::HIP => f.write_str("HIP"),
+            Self::HTTPS => f.write_str("HTTPS"),
+            Self::IPSECKEY => f.write_str("IPSECKEY"),
+            Self::KEY => f.write_str("KEY"),
+            Self::KX => f.write_str("KX"),
+            Self::LOC => f.write_str("LOC"),
+            Self::MX => f.write_str("MX"),
+            Self::NAPTR => f.write_str("NAPTR"),
+            Self::NS => f.write_str("NS"),
+            Self::NSEC => f.write_str("NSEC"),
+            Self::NSEC3 => f.write_str("NSEC3"),
+            Self::NSEC3PARAM => f.write_str("NSEC3PARAM"),
+            Self::OPENPGPKEY => f.write_str("OPENPGPKEY"),
+            Self::PTR => f.write_str("PTR"),
+            Self::RRSIG => f.write_str("RRSIG"),
+            Self::RP => f.write_str("RP"),
+            Self::SIG => f.write_str("SIG"),
+            Self::SMIMEA => f.write_str("SMIMEA"),
+            Self::SOA => f.write_str("SOA"),
+            Self::SRV => f.write_str("SRV"),
+            Self::SSHFP => f.write_str("SSHFP"),
+            Self::SVCB => f.write_str("SVCB"),
+            Self::TA => f.write_str("TA"),
+            Self::TKEY => f.write_str("TKEY"),
+            Self::TLSA => f.write_str("TLSA"),
+            Self::TSIG => f.write_str("TSIG"),
+            Self::TXT => f.write_str("TXT"),
+            Self::URI => f.write_str("URI"),
+            Self::ZONEMD => f.write_str("ZONEMD"),
+        }
     }
 }
