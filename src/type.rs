@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 #[allow(clippy::upper_case_acronyms)]
 #[derive(
-    Serialize, Deserialize, JsonSchema, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord,
+    Default, Serialize, Deserialize, JsonSchema, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
 pub enum Type {
     /// Address record
@@ -13,6 +13,7 @@ pub enum Type {
     /// Returns a 32-bit IPv4 address, most commonly used to map hostnames to an IP address of the host, but it is also used for DNSBLs, storing subnet masks in RFC 1101, etc.
     ///
     /// [1035](https://datatracker.ietf.org/doc/html/rfc1035)
+    #[default]
     A,
     /// IPv6 address record
     ///
