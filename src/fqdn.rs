@@ -1,10 +1,16 @@
-use std::fmt::{Debug, Display, Write};
+use std::{
+    fmt::{Debug, Display, Write},
+    ops::Sub,
+};
 
 use schemars::JsonSchema;
 use serde::{de::Error, Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::segment::{DomainSegment, DomainSegmentError};
+use crate::{
+    segment::{DomainSegment, DomainSegmentError},
+    PartiallyQualifiedDomainName,
+};
 
 /// Produced when attempting to construct a [`FullyQualifiedDomainName`]
 /// from an invalid string.
@@ -142,10 +148,31 @@ impl Serialize for FullyQualifiedDomainName {
     }
 }
 
+impl Sub for FullyQualifiedDomainName {
+    type Output = Result<PartiallyQualifiedDomainName, FullyQualifiedDomainName>;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        let mut own_segments = self.0.clone().into_iter().rev();
+        let mut parent_segments = rhs.0.iter().rev();
+
+        while let Some(parent_domain) = parent_segments.next() {
+            if !own_segments
+                .next()
+                .is_some_and(|segment| &segment == parent_domain)
+            {
+                return Err(self);
+            }
+        }
+
+        Ok(PartiallyQualifiedDomainName::from_iter(own_segments.rev()))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use crate::{
         fqdn::FullyQualifiedDomainNameError, segment::DomainSegment, FullyQualifiedDomainName,
+        PartiallyQualifiedDomainName,
     };
 
     #[test]
@@ -164,6 +191,27 @@ mod test {
         assert_eq!(
             FullyQualifiedDomainName::try_from("example.org"),
             Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified)
+        );
+    }
+
+    #[test]
+    fn subtraction() {
+        assert_eq!(
+            FullyQualifiedDomainName::try_from("www.example.org.").unwrap()
+                - FullyQualifiedDomainName::try_from("example.org.").unwrap(),
+            Ok(PartiallyQualifiedDomainName::try_from("www").unwrap())
+        );
+
+        assert_eq!(
+            FullyQualifiedDomainName::try_from("www.example.org.").unwrap()
+                - FullyQualifiedDomainName::try_from("org.").unwrap(),
+            Ok(PartiallyQualifiedDomainName::try_from("www.example").unwrap())
+        );
+
+        assert_eq!(
+            FullyQualifiedDomainName::try_from("www.example.org.").unwrap()
+                - FullyQualifiedDomainName::try_from("test.org.").unwrap(),
+            Err(FullyQualifiedDomainName::try_from("www.example.org.").unwrap())
         );
     }
 }
