@@ -2,6 +2,9 @@ use std::fmt::Display;
 
 use thiserror::Error;
 
+/// Segment of a domain.
+/// 
+/// This is the part between dots.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct DomainSegment(String);
 
@@ -11,14 +14,24 @@ impl DomainSegment {
     }
 }
 
+/// Produced when attempting to construct a [`DomainSegment`] from
+/// an invalid string.
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DomainSegmentError {
+    /// Domain name segments can contain hyphens, but crucially:
+    /// 
+    /// * Not at the beginning of a segment.
+    /// * Not at the end of a segment.
+    /// * Not at the 3rd and 4th position *simultaneously* (used for [Punycode encoding](https://en.wikipedia.org/wiki/Punycode))
     #[error("illegal hyphen at position {0}")]
     IllegalHyphen(usize),
+    /// Segment contains invalid character.
     #[error("invalid character {0}")]
     InvalidCharacter(char),
+    /// Domain segment is longer than the permitted 63 characters.
     #[error("segment too long {0} > 63")]
     TooLong(usize),
+    /// Domain segment is empty.
     #[error("segment is an empty string")]
     EmptyString,
 }

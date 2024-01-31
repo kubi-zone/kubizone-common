@@ -9,14 +9,18 @@ use crate::{
     FullyQualifiedDomainName, PartiallyQualifiedDomainName,
 };
 
+/// Either a [`FullyQualifiedDomainName`] or a [`PartiallyQualifiedDomainName`].
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(untagged)]
 pub enum DomainName {
+    /// Domain name is fully qualified.
     Full(FullyQualifiedDomainName),
+    /// Domain name is partially qualified.
     Partial(PartiallyQualifiedDomainName),
 }
 
 impl DomainName {
+    /// Returns true if domain is fully qualified.
     pub fn is_fully_qualified(&self) -> bool {
         match self {
             DomainName::Full(_) => true,
@@ -24,6 +28,7 @@ impl DomainName {
         }
     }
 
+    /// Returns true if domain is only partially qualified.
     pub fn is_partially_qualified(&self) -> bool {
         match self {
             DomainName::Full(_) => false,
@@ -31,6 +36,7 @@ impl DomainName {
         }
     }
 
+    /// Returns [`None`] if fully qualified, or a reference to the contained partially qualified domain otherwise.
     pub fn as_partial(&self) -> Option<&PartiallyQualifiedDomainName> {
         match self {
             DomainName::Partial(partial) => Some(partial),
@@ -38,6 +44,7 @@ impl DomainName {
         }
     }
 
+    /// Returns [`None`] if partially qualified, or a reference to the contained fully qualified domain otherwise.
     pub fn as_full(&self) -> Option<&FullyQualifiedDomainName> {
         match self {
             DomainName::Full(full) => Some(full),

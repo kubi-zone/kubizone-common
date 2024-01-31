@@ -12,20 +12,43 @@ use crate::{
     FullyQualifiedDomainName,
 };
 
+/// Produced when attempting to construct a [`PartiallyQualifiedDomainName`]
+/// from an invalid string.
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PartiallyQualifiedDomainNameError {
+    /// The parsed string is not partially qualified. That is, it contains
+    /// a trailing dot making it fully qualified.
     #[error("domain is fully qualified")]
     DomainIsFullyQualified,
+    /// One or more of the segments of the domain specified in the string
+    /// are invalid.
     #[error("{0}")]
     SegmentError(#[from] DomainSegmentError),
 }
 
+/// Partially qualified domain name (PQDN).
+///
+/// A partially qualified domain name is an incomplete domain, meaning
+/// the domain name is (potentially) a subdomain of another unknown domain.
+/// Unlike fully qualified domain names, PQDNs indicate only some of the
+/// path within the domain name system.
+///
+/// Partially qualified domain names are often used when the root of the
+/// domain name is not known, or specified elsewhere.
+///
+/// See also [`FullyQualifiedDomainName`]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PartiallyQualifiedDomainName(Vec<DomainSegment>);
 
 impl PartiallyQualifiedDomainName {
+    /// Iterates over all [`DomainSegment`]s that make up the domain name.
     pub fn iter(&self) -> impl Iterator<Item = &DomainSegment> + '_ {
         self.0.iter()
+    }
+
+    /// Length of the fully qualified domain name as a string.
+    pub fn len(&self) -> usize {
+        self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
     }
 }
 

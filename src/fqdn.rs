@@ -6,24 +6,46 @@ use thiserror::Error;
 
 use crate::segment::{DomainSegment, DomainSegmentError};
 
+/// Produced when attempting to construct a [`FullyQualifiedDomainName`]
+/// from an invalid string.
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FullyQualifiedDomainNameError {
+    /// The parsed string is not fully qualified. i.e. it does not contain
+    /// a trailing dot.
     #[error("domain is partially qualified")]
     DomainIsPartiallyQualified,
+    /// One or more of the segments of the domain specified in the string
+    /// are invalid.
     #[error("{0}")]
     SegmentError(#[from] DomainSegmentError),
 }
 
+/// Fully qualified domain name (FQDN).
+///
+/// A fully qualified domain name is a domain name consisting of
+/// a series of [`DomainSegment`]s, and ending in a trailing dot.
+/// The trailing dot indicates that this is the entirety of the
+/// domain name, and therefore denotes the exact location of the
+/// domain within the domain name system.
+///
+/// See also [`PartiallyQualifiedDomainName`](crate::PartiallyQualifiedDomainName).
 #[derive(Default, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FullyQualifiedDomainName(Vec<DomainSegment>);
 
 impl FullyQualifiedDomainName {
+    /// Iterates over all [`DomainSegment`]s that make up the domain name.
     pub fn iter(&self) -> impl Iterator<Item = &DomainSegment> + '_ {
         self.0.iter()
     }
 
+    /// Returns true if `parent` matches the tail end of `self`.
     pub fn is_subdomain_of(&self, parent: &FullyQualifiedDomainName) -> bool {
-        self.0.ends_with(parent.as_ref())
+        self.0.ends_with(parent.as_ref()) && self != parent
+    }
+
+    /// Length of the fully qualified domain name as a string, *including* the trailing dot.
+    pub fn len(&self) -> usize {
+        self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
     }
 }
 

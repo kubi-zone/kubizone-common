@@ -3,6 +3,7 @@ use std::fmt::Display;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+/// Domain Name System type.
 #[allow(clippy::upper_case_acronyms)]
 #[derive(
     Default,

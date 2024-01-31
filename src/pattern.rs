@@ -13,10 +13,12 @@ pub enum PatternError {}
 pub struct Pattern(Vec<PatternSegment>);
 
 impl Pattern {
+    /// Iterates over the [`PatternSegment`]s of the pattern.
     pub fn iter(&self) -> impl Iterator<Item = &PatternSegment> + '_ {
         self.0.iter()
     }
 
+    /// Replaces trailing `@` domain segments with the provided fully qualified domain name.
     pub fn with_origin(&self, origin: &FullyQualifiedDomainName) -> Pattern {
         let mut pattern = self.clone();
 
@@ -30,6 +32,7 @@ impl Pattern {
         pattern
     }
 
+    /// Returns true if the papttern matches the given domain.
     pub fn matches(&self, domain: &DomainName) -> bool {
         let domain_segments = domain.as_ref().iter().rev();
         let pattern_segments = self.0[..].iter().rev();
@@ -132,10 +135,14 @@ impl Serialize for Pattern {
     }
 }
 
+/// Segment of a pattern.
+/// 
+/// Used for matching against a single [`DomainSegment`].
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PatternSegment(String);
 
 impl PatternSegment {
+    /// Returns true if the pattern segment matches the provided domain segment.
     pub fn matches(&self, domain_segment: &DomainSegment) -> bool {
         if self.0 == domain_segment.as_ref() {
             return true;
@@ -149,29 +156,44 @@ impl PatternSegment {
         false
     }
 
+    /// Returns true if this pattern segment is just the origin (@) symbol,
+    /// and nothing else.
     pub fn is_origin(&self) -> bool {
         self.0 == "@"
     }
 
-    // Segments cannot be empty
+    // Segments cannot be empty.
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.len()
     }
 }
 
+/// Produced when attempting to construct a [`PatternSegment`]
+/// from an invalid string.
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PatternSegmentError {
+    /// Domain name segments (and therefore pattern segments)
+    /// can contain hyphens, but crucially:
+    /// 
+    /// * Not at the beginning of a segment.
+    /// * Not at the end of a segment.
+    /// * Not at the 3rd and 4th position *simultaneously* (used for [Punycode encoding](https://en.wikipedia.org/wiki/Punycode))
     #[error("illegal hyphen at position {0}")]
     IllegalHyphen(usize),
+    /// Segment contains invalid character.
     #[error("invalid character {0}")]
     InvalidCharacter(char),
+    /// Domain segment is longer than the permitted 63 characters.
     #[error("pattern too long {0} > 63")]
     TooLong(usize),
+    /// Domain segment is empty.
     #[error("pattern is an empty string")]
     EmptyString,
+    /// Pattern contains more than one wildcard (*) character.
     #[error("patterns can only have one wildcard")]
     MultipleWildcards,
+    /// Patterns matching an origin (@) cannot contain any other characters.
     #[error("origins must be standalone")]
     NonStandaloneOrigin,
 }

@@ -3,6 +3,7 @@ use std::fmt::Display;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
+/// Domain Name System class.
 #[derive(
     Default,
     Serialize,
@@ -31,14 +32,17 @@ pub enum Class {
 }
 
 impl Class {
+    ///  Returns true if `self` is [`Class::IN`]
     pub fn is_internet(&self) -> bool {
         *self == Class::IN
     }
 
+    ///  Returns true if `self` is [`Class::CH`]
     pub fn is_chaos(&self) -> bool {
         *self == Class::CH
     }
 
+    ///  Returns true if `self` is [`Class::HS`]
     pub fn is_hesiod(&self) -> bool {
         *self == Class::HS
     }
