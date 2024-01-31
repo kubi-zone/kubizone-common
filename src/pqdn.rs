@@ -92,6 +92,18 @@ impl AsRef<[DomainSegment]> for PartiallyQualifiedDomainName {
     }
 }
 
+impl PartialEq<String> for PartiallyQualifiedDomainName {
+    fn eq(&self, other: &String) -> bool {
+        self.to_string().eq(other)
+    }
+}
+
+impl PartialEq<str> for PartiallyQualifiedDomainName {
+    fn eq(&self, other: &str) -> bool {
+        self.to_string().eq(other)
+    }
+}
+
 impl JsonSchema for PartiallyQualifiedDomainName {
     fn schema_name() -> String {
         <String as schemars::JsonSchema>::schema_name()
