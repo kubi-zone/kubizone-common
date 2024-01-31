@@ -9,9 +9,7 @@ use crate::{
     FullyQualifiedDomainName, PartiallyQualifiedDomainName,
 };
 
-#[derive(
-    Clone, Debug, Serialize, Deserialize, JsonSchema, Hash, PartialEq, Eq, PartialOrd, Ord,
-)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(untagged)]
 pub enum DomainName {
     Full(FullyQualifiedDomainName),
@@ -121,6 +119,16 @@ impl PartialEq<FullyQualifiedDomainName> for DomainName {
             DomainName::Full(full) => full.eq(other),
             DomainName::Partial(_) => false,
         }
+    }
+}
+
+impl JsonSchema for DomainName {
+    fn schema_name() -> String {
+        <String as JsonSchema>::schema_name()
+    }
+
+    fn json_schema(gen: &mut schemars::gen::SchemaGenerator) -> schemars::schema::Schema {
+        <String as JsonSchema>::json_schema(gen)
     }
 }
 
