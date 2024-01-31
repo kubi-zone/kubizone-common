@@ -104,3 +104,21 @@ impl AsRef<[DomainSegment]> for DomainName {
         }
     }
 }
+
+impl PartialEq<PartiallyQualifiedDomainName> for DomainName {
+    fn eq(&self, other: &PartiallyQualifiedDomainName) -> bool {
+        match self {
+            DomainName::Full(_) => false,
+            DomainName::Partial(partial) => partial.eq(other),
+        }
+    }
+}
+
+impl PartialEq<FullyQualifiedDomainName> for DomainName {
+    fn eq(&self, other: &FullyQualifiedDomainName) -> bool {
+        match self {
+            DomainName::Full(full) => full.eq(other),
+            DomainName::Partial(_) => false,
+        }
+    }
+}
