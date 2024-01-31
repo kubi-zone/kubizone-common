@@ -43,8 +43,9 @@ pub struct FullyQualifiedDomainName(Vec<DomainSegment>);
 
 impl FullyQualifiedDomainName {
     /// Attempt to construct a FullyQualifiedDomainName from an iterator
-    /// over [`DomainSegment`]s. Fails if the iterator contains any Origin (@)
-    /// domain segments.
+    /// over [`DomainSegment`]s.
+    /// 
+    /// Fails if the iterator contains any Origin (@) domain segments.
     pub fn try_from_segments<T: IntoIterator<Item = DomainSegment>>(
         iter: T,
     ) -> Result<Self, FullyQualifiedDomainNameError> {
