@@ -12,6 +12,7 @@ use crate::{
 #[derive(
     Clone, Debug, Serialize, Deserialize, JsonSchema, Hash, PartialEq, Eq, PartialOrd, Ord,
 )]
+#[serde(untagged)]
 pub enum DomainName {
     Full(FullyQualifiedDomainName),
     Partial(PartiallyQualifiedDomainName),
@@ -120,5 +121,29 @@ impl PartialEq<FullyQualifiedDomainName> for DomainName {
             DomainName::Full(full) => full.eq(other),
             DomainName::Partial(_) => false,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{DomainName, FullyQualifiedDomainName, PartiallyQualifiedDomainName};
+
+    #[test]
+    fn deser() {
+        let fqdn = DomainName::from(FullyQualifiedDomainName::try_from("example.org.").unwrap());
+        let pqdn = DomainName::from(PartiallyQualifiedDomainName::try_from("example.org").unwrap());
+
+        println!("fqdn: {}", serde_yaml::to_string(&fqdn).unwrap());
+        println!("pqdn: {}", serde_yaml::to_string(&pqdn).unwrap());
+
+        assert_eq!(
+            serde_yaml::from_str::<DomainName>(&serde_yaml::to_string(&fqdn).unwrap()).unwrap(),
+            fqdn
+        );
+
+        assert_eq!(
+            serde_yaml::from_str::<DomainName>(&serde_yaml::to_string(&pqdn).unwrap()).unwrap(),
+            pqdn
+        );
     }
 }
