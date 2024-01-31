@@ -4,7 +4,18 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 #[derive(
-    Default, Serialize, Deserialize, JsonSchema, Clone, Copy, Debug, Hash, PartialEq, Eq, PartialOrd, Ord,
+    Default,
+    Serialize,
+    Deserialize,
+    JsonSchema,
+    Clone,
+    Copy,
+    Debug,
+    Hash,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
 )]
 pub enum Class {
     /// Internet
@@ -17,6 +28,20 @@ pub enum Class {
     /// Hesiod
     #[serde(rename = "HS")]
     HS,
+}
+
+impl Class {
+    pub fn is_internet(&self) -> bool {
+        *self == Class::IN
+    }
+
+    pub fn is_chaos(&self) -> bool {
+        *self == Class::CH
+    }
+
+    pub fn is_hesiod(&self) -> bool {
+        *self == Class::HS
+    }
 }
 
 impl Display for Class {
