@@ -1,9 +1,10 @@
+mod class;
 mod dn;
 mod fqdn;
 mod pattern;
 mod pqdn;
 mod segment;
-mod class;
+mod r#type;
 
 pub use class::Class;
 pub use dn::DomainName;
