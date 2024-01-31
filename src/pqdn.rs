@@ -8,6 +8,7 @@ use serde::{de::Error, Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::{
+    fqdn::FullyQualifiedDomainNameError,
     segment::{DomainSegment, DomainSegmentError},
     FullyQualifiedDomainName,
 };
@@ -95,7 +96,7 @@ impl Display for PartiallyQualifiedDomainName {
 }
 
 impl Add<&FullyQualifiedDomainName> for &PartiallyQualifiedDomainName {
-    type Output = FullyQualifiedDomainName;
+    type Output = Result<FullyQualifiedDomainName, FullyQualifiedDomainNameError>;
 
     fn add(self, rhs: &FullyQualifiedDomainName) -> Self::Output {
         FullyQualifiedDomainName::from_iter(self.0.iter().chain(rhs.iter()).cloned())
@@ -189,7 +190,7 @@ mod test {
         assert_eq!(
             &PartiallyQualifiedDomainName::try_from("test").unwrap()
                 + &FullyQualifiedDomainName::try_from("example.org.").unwrap(),
-            FullyQualifiedDomainName::try_from("test.example.org.").unwrap()
+            Ok(FullyQualifiedDomainName::try_from("test.example.org.").unwrap())
         )
     }
 

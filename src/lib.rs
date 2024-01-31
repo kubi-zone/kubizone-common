@@ -17,4 +17,5 @@ pub mod error {
     pub use crate::fqdn::FullyQualifiedDomainNameError;
     pub use crate::pattern::PatternSegmentError;
     pub use crate::pqdn::PartiallyQualifiedDomainNameError;
+    pub use crate::dn::DomainNameError;
 }

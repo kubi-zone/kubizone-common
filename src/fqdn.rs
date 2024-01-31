@@ -24,6 +24,9 @@ pub enum FullyQualifiedDomainNameError {
     /// are invalid.
     #[error("{0}")]
     SegmentError(#[from] DomainSegmentError),
+    /// Domain contains origin (@) segment.
+    #[error("domain contains origin (@) segment")]
+    OriginInFullyQualifiedDomain,
 }
 
 /// Fully qualified domain name (FQDN).
@@ -39,6 +42,21 @@ pub enum FullyQualifiedDomainNameError {
 pub struct FullyQualifiedDomainName(Vec<DomainSegment>);
 
 impl FullyQualifiedDomainName {
+    /// Attempt to construct a FullyQualifiedDomainName from an iterator
+    /// over [`DomainSegment`]s. Fails if the iterator contains any Origin (@)
+    /// domain segments.
+    pub fn from_iter<T: IntoIterator<Item = DomainSegment>>(
+        iter: T,
+    ) -> Result<Self, FullyQualifiedDomainNameError> {
+        let segments: Vec<DomainSegment> = iter.into_iter().collect();
+
+        if segments.iter().any(DomainSegment::is_origin) {
+            Err(FullyQualifiedDomainNameError::OriginInFullyQualifiedDomain)
+        } else {
+            Ok(FullyQualifiedDomainName(segments))
+        }
+    }
+
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
     pub fn iter(&self) -> impl Iterator<Item = &DomainSegment> + '_ {
         self.0.iter()
@@ -53,12 +71,6 @@ impl FullyQualifiedDomainName {
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
-    }
-}
-
-impl FromIterator<DomainSegment> for FullyQualifiedDomainName {
-    fn from_iter<T: IntoIterator<Item = DomainSegment>>(iter: T) -> Self {
-        FullyQualifiedDomainName(iter.into_iter().collect())
     }
 }
 
@@ -193,7 +205,8 @@ mod test {
             Ok(FullyQualifiedDomainName::from_iter([
                 DomainSegment::try_from("example").unwrap(),
                 DomainSegment::try_from("org").unwrap()
-            ]))
+            ])
+            .unwrap())
         );
     }
 
