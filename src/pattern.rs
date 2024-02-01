@@ -4,7 +4,7 @@ use schemars::JsonSchema;
 use serde::{de::Error, Deserialize, Serialize};
 use thiserror::Error;
 
-use crate::{segment::DomainSegment, DomainName, FullyQualifiedDomainName};
+use crate::{segment::DomainSegment, FullyQualifiedDomainName};
 
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PatternError {}
@@ -32,7 +32,7 @@ impl Pattern {
     }
 
     /// Returns true if the papttern matches the given domain.
-    pub fn matches(&self, domain: &DomainName) -> bool {
+    pub fn matches(&self, domain: &FullyQualifiedDomainName) -> bool {
         let domain_segments = domain.as_ref().iter().rev();
         let pattern_segments = self.0[..].iter().rev();
 
@@ -263,7 +263,7 @@ impl AsRef<str> for PatternSegment {
 #[cfg(test)]
 mod tests {
     use crate::{
-        error::PatternSegmentError, pattern::PatternSegment, segment::DomainSegment, DomainName,
+        error::PatternSegmentError, pattern::PatternSegment, segment::DomainSegment,
         FullyQualifiedDomainName, Pattern,
     };
 
@@ -314,32 +314,35 @@ mod tests {
     fn simple_pattern_match() {
         assert!(Pattern::try_from("*.example.org")
             .unwrap()
-            .matches(&DomainName::try_from("www.example.org").unwrap()));
+            .matches(&FullyQualifiedDomainName::try_from("www.example.org.").unwrap()));
     }
 
     #[test]
     fn longer_pattern_than_domain() {
         assert!(!Pattern::try_from("*.*.example.org")
             .unwrap()
-            .matches(&DomainName::try_from("www.example.org").unwrap()));
+            .matches(&FullyQualifiedDomainName::try_from("www.example.org.").unwrap()));
     }
 
     #[test]
     fn longer_domain_than_pattern() {
-        assert!(Pattern::try_from("*.example.org")
-            .unwrap()
-            .matches(&DomainName::try_from("www.sub.test.dev.example.org").unwrap()));
+        assert!(Pattern::try_from("*.example.org").unwrap().matches(
+            &FullyQualifiedDomainName::try_from("www.sub.test.dev.example.org.").unwrap()
+        ));
     }
 
     #[test]
     fn wildcard_segments() {
         let pattern = Pattern::try_from("dev*.example.org").unwrap();
 
-        assert!(pattern.matches(&DomainName::try_from("dev.example.org").unwrap()));
-        assert!(pattern.matches(&DomainName::try_from("dev-1.example.org").unwrap()));
-        assert!(pattern.matches(&DomainName::try_from("dev-hello.example.org").unwrap()));
-        assert!(!pattern.matches(&DomainName::try_from("de.example.org").unwrap()));
-        assert!(!pattern.matches(&DomainName::try_from("www.dev-1.example.org").unwrap()));
+        assert!(pattern.matches(&FullyQualifiedDomainName::try_from("dev.example.org.").unwrap()));
+        assert!(pattern.matches(&FullyQualifiedDomainName::try_from("dev-1.example.org.").unwrap()));
+        assert!(
+            pattern.matches(&FullyQualifiedDomainName::try_from("dev-hello.example.org.").unwrap())
+        );
+        assert!(!pattern.matches(&FullyQualifiedDomainName::try_from("de.example.org.").unwrap()));
+        assert!(!pattern
+            .matches(&FullyQualifiedDomainName::try_from("www.dev-1.example.org.").unwrap()));
     }
 
     #[test]
@@ -349,8 +352,8 @@ mod tests {
         assert_eq!(fqdn, pqdn);
 
         assert_eq!(
-            fqdn.matches(&DomainName::try_from("example.org.").unwrap()),
-            pqdn.matches(&DomainName::try_from("example.org.").unwrap())
+            fqdn.matches(&FullyQualifiedDomainName::try_from("example.org.").unwrap()),
+            pqdn.matches(&FullyQualifiedDomainName::try_from("example.org.").unwrap())
         );
     }
 
@@ -358,12 +361,12 @@ mod tests {
     fn origin_insertion() {
         let pattern = Pattern::try_from("example").unwrap();
 
-        let domain = DomainName::try_from("example.org.").unwrap();
+        let domain = FullyQualifiedDomainName::try_from("example.org.").unwrap();
 
         assert!(!pattern.matches(&domain));
 
         assert!(pattern
             .with_origin(&FullyQualifiedDomainName::try_from("org.").unwrap())
-            .matches(&DomainName::try_from("example.org.").unwrap()));
+            .matches(&FullyQualifiedDomainName::try_from("example.org.").unwrap()));
     }
 }
