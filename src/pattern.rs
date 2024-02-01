@@ -9,10 +9,16 @@ use crate::{segment::DomainSegment, DomainName, FullyQualifiedDomainName};
 #[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum PatternError {}
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Pattern(Vec<PatternSegment>);
 
 impl Pattern {
+    /// Returns a pattern that only matches the origin of the parent
+    /// FQDN.
+    pub fn origin() -> Self {
+        Pattern::default()
+    }
+
     /// Iterates over the [`PatternSegment`]s of the pattern.
     pub fn iter(&self) -> impl Iterator<Item = &PatternSegment> + '_ {
         self.0.iter()
