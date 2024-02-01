@@ -2,26 +2,12 @@ use std::fmt::Display;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
 
 use crate::{
     fqdn::FullyQualifiedDomainNameError,
     segment::{DomainSegment, DomainSegmentError},
     FullyQualifiedDomainName, PartiallyQualifiedDomainName,
 };
-
-/// Produced when attempting to construct a [`DomainName`]
-/// from an invalid string.
-#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum DomainNameError {
-    /// Domain contains origin (@) segment.
-    #[error("fully qualified domain contains origin (@) segment")]
-    OriginInFullyQualifiedDomain,
-    /// One or more of the segments of the domain specified in the string
-    /// are invalid.
-    #[error("{0}")]
-    SegmentError(#[from] DomainSegmentError),
-}
 
 /// Either a [`FullyQualifiedDomainName`] or a [`PartiallyQualifiedDomainName`].
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -81,7 +67,7 @@ impl DomainName {
 
 impl Default for DomainName {
     fn default() -> Self {
-        DomainName::Full(FullyQualifiedDomainName::default())
+        DomainName::Partial(PartiallyQualifiedDomainName::default())
     }
 }
 
@@ -98,7 +84,7 @@ impl From<FullyQualifiedDomainName> for DomainName {
 }
 
 impl TryFrom<String> for DomainName {
-    type Error = DomainNameError;
+    type Error = DomainSegmentError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         Self::try_from(value.as_str())
@@ -106,7 +92,7 @@ impl TryFrom<String> for DomainName {
 }
 
 impl TryFrom<&str> for DomainName {
-    type Error = DomainNameError;
+    type Error = DomainSegmentError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match FullyQualifiedDomainName::try_from(value) {
@@ -114,10 +100,7 @@ impl TryFrom<&str> for DomainName {
             Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified) => Ok(
                 DomainName::Partial(PartiallyQualifiedDomainName::try_from(value).unwrap()),
             ),
-            Err(FullyQualifiedDomainNameError::SegmentError(err)) => Err(err.into()),
-            Err(FullyQualifiedDomainNameError::OriginInFullyQualifiedDomain) => {
-                Err(DomainNameError::OriginInFullyQualifiedDomain)
-            }
+            Err(FullyQualifiedDomainNameError::SegmentError(err)) => Err(err),
         }
     }
 }

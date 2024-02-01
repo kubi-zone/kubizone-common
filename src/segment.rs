@@ -9,12 +9,6 @@ use thiserror::Error;
 pub struct DomainSegment(String);
 
 impl DomainSegment {
-    /// Returns true if this segment is just the origin (@) symbol,
-    /// and nothing else.
-    pub fn is_origin(&self) -> bool {
-        self.0 == "@"
-    }
-
     pub fn len(&self) -> usize {
         self.0.len()
     }
@@ -40,12 +34,9 @@ pub enum DomainSegmentError {
     /// Domain segment is empty.
     #[error("segment is an empty string")]
     EmptyString,
-    /// Origin (@) segments cannot contain any other characters.
-    #[error("origins must be standalone")]
-    NonStandaloneOrigin,
 }
 
-const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz@";
+const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz";
 
 impl TryFrom<&str> for DomainSegment {
     type Error = DomainSegmentError;
@@ -75,10 +66,6 @@ impl TryFrom<&str> for DomainSegment {
 
         if value.get(2..4) == Some("--") {
             return Err(DomainSegmentError::IllegalHyphen(3));
-        }
-
-        if value.contains('@') && value.len() != 1 {
-            return Err(DomainSegmentError::NonStandaloneOrigin);
         }
 
         Ok(DomainSegment(value))

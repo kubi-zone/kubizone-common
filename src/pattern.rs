@@ -18,18 +18,11 @@ impl Pattern {
         self.0.iter()
     }
 
-    /// Replaces trailing `@` domain segments with the provided fully qualified domain name.
+    /// Returns a new pattern with the origin appended.
     pub fn with_origin(&self, origin: &FullyQualifiedDomainName) -> Pattern {
-        let mut pattern = self.clone();
-
-        if self.0.last().is_some_and(PatternSegment::is_origin) {
-            pattern.0.pop();
-            pattern
-                .0
-                .extend(origin.iter().cloned().map(PatternSegment::from));
-        }
-
-        pattern
+        let mut cloned = self.clone();
+        cloned.0.extend(origin.iter().map(PatternSegment::from));
+        cloned
     }
 
     /// Returns true if the papttern matches the given domain.
@@ -156,12 +149,6 @@ impl PatternSegment {
         false
     }
 
-    /// Returns true if this pattern segment is just the origin (@) symbol,
-    /// and nothing else.
-    pub fn is_origin(&self) -> bool {
-        self.0 == "@"
-    }
-
     // Segments cannot be empty.
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
@@ -193,12 +180,9 @@ pub enum PatternSegmentError {
     /// Pattern contains more than one wildcard (*) character.
     #[error("patterns can only have one wildcard")]
     MultipleWildcards,
-    /// Patterns matching an origin (@) cannot contain any other characters.
-    #[error("origins must be standalone")]
-    NonStandaloneOrigin,
 }
 
-const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz*@";
+const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz*";
 
 impl TryFrom<&str> for PatternSegment {
     type Error = PatternSegmentError;
@@ -234,17 +218,19 @@ impl TryFrom<&str> for PatternSegment {
             return Err(PatternSegmentError::MultipleWildcards);
         }
 
-        if value.contains('@') && value.len() != 1 {
-            return Err(PatternSegmentError::NonStandaloneOrigin);
-        }
-
         Ok(PatternSegment(value))
     }
 }
 
 impl From<DomainSegment> for PatternSegment {
     fn from(value: DomainSegment) -> Self {
-        PatternSegment(value.as_ref().to_string())
+        PatternSegment(value.to_string())
+    }
+}
+
+impl From<&DomainSegment> for PatternSegment {
+    fn from(value: &DomainSegment) -> Self {
+        PatternSegment(value.to_string())
     }
 }
 
@@ -319,13 +305,6 @@ mod tests {
     }
 
     #[test]
-    fn origins() {
-        assert!(!PatternSegment::try_from("@")
-            .unwrap()
-            .matches(&DomainSegment::try_from("example").unwrap()))
-    }
-
-    #[test]
     fn simple_pattern_match() {
         assert!(Pattern::try_from("*.example.org")
             .unwrap()
@@ -371,9 +350,11 @@ mod tests {
 
     #[test]
     fn origin_insertion() {
-        let pattern = Pattern::try_from("example.@").unwrap();
+        let pattern = Pattern::try_from("example").unwrap();
 
-        assert!(!pattern.matches(&DomainName::try_from("example.org.").unwrap()));
+        let domain = DomainName::try_from("example.org.").unwrap();
+
+        assert!(!pattern.matches(&domain));
 
         assert!(pattern
             .with_origin(&FullyQualifiedDomainName::try_from("org.").unwrap())

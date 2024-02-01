@@ -8,7 +8,6 @@ use serde::{de::Error, Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::{
-    fqdn::FullyQualifiedDomainNameError,
     segment::{DomainSegment, DomainSegmentError},
     FullyQualifiedDomainName,
 };
@@ -25,10 +24,6 @@ pub enum PartiallyQualifiedDomainNameError {
     /// are invalid.
     #[error("{0}")]
     SegmentError(#[from] DomainSegmentError),
-    /// Domain contains origin (@) segment in a non-terminal
-    /// domain segment.
-    #[error("non-terminal segment contains origin (@) segment")]
-    OriginInNonTerminalSegment,
 }
 
 /// Partially qualified domain name (PQDN).
@@ -46,35 +41,9 @@ pub enum PartiallyQualifiedDomainNameError {
 pub struct PartiallyQualifiedDomainName(Vec<DomainSegment>);
 
 impl PartiallyQualifiedDomainName {
-    /// Attempt to construct a PartiallyQualifiedDomainName from an iterator
-    /// over [`DomainSegment`]s. Fails if the iterator contains an origin (@)
-    /// segment anywhere but the last segment.
-    pub fn try_from_segments<T: IntoIterator<Item = DomainSegment>>(
-        iter: T,
-    ) -> Result<Self, PartiallyQualifiedDomainNameError> {
-        let segments: Vec<DomainSegment> = iter.into_iter().collect();
-
-        if segments.iter().rev().skip(1).any(DomainSegment::is_origin) {
-            Err(PartiallyQualifiedDomainNameError::OriginInNonTerminalSegment)
-        } else {
-            Ok(PartiallyQualifiedDomainName(segments))
-        }
-    }
-
-    /// Replaces trailing `@` domain segments with the provided fully qualified domain name.
-    pub fn with_origin(
-        &self,
-        origin: &FullyQualifiedDomainName,
-    ) -> Result<FullyQualifiedDomainName, PartiallyQualifiedDomainName> {
-        let mut cloned = self.clone();
-
-        if self.0.last().is_some_and(DomainSegment::is_origin) {
-            cloned.0.pop();
-            // Unwrap safe: We just removed the origin, so joining can't fail.
-            Ok((self + origin).unwrap())
-        } else {
-            Err(cloned)
-        }
+    /// Appends the fqdn to the end of the partial domain.
+    pub fn with_origin(&self, origin: &FullyQualifiedDomainName) -> FullyQualifiedDomainName {
+        self + origin
     }
 
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
@@ -86,6 +55,18 @@ impl PartiallyQualifiedDomainName {
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
+    }
+}
+
+impl FromIterator<DomainSegment> for PartiallyQualifiedDomainName {
+    fn from_iter<T: IntoIterator<Item = DomainSegment>>(iter: T) -> Self {
+        PartiallyQualifiedDomainName(iter.into_iter().collect())
+    }
+}
+
+impl<'a> FromIterator<&'a DomainSegment> for PartiallyQualifiedDomainName {
+    fn from_iter<T: IntoIterator<Item = &'a DomainSegment>>(iter: T) -> Self {
+        PartiallyQualifiedDomainName(iter.into_iter().cloned().collect())
     }
 }
 
@@ -125,18 +106,18 @@ impl Display for PartiallyQualifiedDomainName {
 }
 
 impl Add<&FullyQualifiedDomainName> for &PartiallyQualifiedDomainName {
-    type Output = Result<FullyQualifiedDomainName, FullyQualifiedDomainNameError>;
+    type Output = FullyQualifiedDomainName;
 
     fn add(self, rhs: &FullyQualifiedDomainName) -> Self::Output {
-        FullyQualifiedDomainName::try_from_segments(self.0.iter().chain(rhs.iter()).cloned())
+        FullyQualifiedDomainName::from_iter(self.0.iter().chain(rhs.iter()).cloned())
     }
 }
 
 impl Add for &PartiallyQualifiedDomainName {
-    type Output = Result<PartiallyQualifiedDomainName, PartiallyQualifiedDomainNameError>;
+    type Output = PartiallyQualifiedDomainName;
 
     fn add(self, rhs: &PartiallyQualifiedDomainName) -> Self::Output {
-        PartiallyQualifiedDomainName::try_from_segments(self.0.iter().chain(rhs.iter()).cloned())
+        PartiallyQualifiedDomainName::from_iter(self.0.iter().chain(rhs.iter()).cloned())
     }
 }
 
@@ -198,8 +179,8 @@ mod test {
     #[test]
     fn construct_pqdn() {
         assert_eq!(
-            PartiallyQualifiedDomainName::try_from("example.org"),
-            PartiallyQualifiedDomainName::try_from_segments([
+            PartiallyQualifiedDomainName::try_from("example.org").unwrap(),
+            PartiallyQualifiedDomainName::from_iter([
                 DomainSegment::try_from("example").unwrap(),
                 DomainSegment::try_from("org").unwrap()
             ])
@@ -219,7 +200,7 @@ mod test {
         assert_eq!(
             &PartiallyQualifiedDomainName::try_from("test").unwrap()
                 + &FullyQualifiedDomainName::try_from("example.org.").unwrap(),
-            Ok(FullyQualifiedDomainName::try_from("test.example.org.").unwrap())
+            FullyQualifiedDomainName::try_from("test.example.org.").unwrap()
         )
     }
 
@@ -228,7 +209,7 @@ mod test {
         assert_eq!(
             &PartiallyQualifiedDomainName::try_from("test").unwrap()
                 + &PartiallyQualifiedDomainName::try_from("example").unwrap(),
-            Ok(PartiallyQualifiedDomainName::try_from("test.example").unwrap())
+            PartiallyQualifiedDomainName::try_from("test.example").unwrap()
         )
     }
 }
