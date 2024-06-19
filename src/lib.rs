@@ -12,9 +12,11 @@ pub use fqdn::FullyQualifiedDomainName;
 pub use pattern::{Pattern, PatternSegment};
 pub use pqdn::PartiallyQualifiedDomainName;
 pub use r#type::Type;
+pub use segment::DomainSegment;
 
 pub mod error {
     pub use crate::fqdn::FullyQualifiedDomainNameError;
     pub use crate::pattern::PatternSegmentError;
     pub use crate::pqdn::PartiallyQualifiedDomainNameError;
+    pub use crate::segment::DomainSegmentError;
 }
