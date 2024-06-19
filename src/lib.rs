@@ -1,6 +1,7 @@
 mod class;
 mod dn;
 mod fqdn;
+mod ident;
 mod pattern;
 mod pqdn;
 mod segment;
@@ -9,6 +10,7 @@ mod r#type;
 pub use class::Class;
 pub use dn::DomainName;
 pub use fqdn::FullyQualifiedDomainName;
+pub use ident::RecordIdent;
 pub use pattern::{Pattern, PatternSegment};
 pub use pqdn::PartiallyQualifiedDomainName;
 pub use r#type::Type;
