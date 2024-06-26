@@ -24,6 +24,9 @@ pub enum FullyQualifiedDomainNameError {
     /// are invalid.
     #[error("{0}")]
     SegmentError(#[from] DomainSegmentError),
+    /// Wildcard segments must only appear at the beginning of a record.
+    #[error("non-leading wildcard segment")]
+    NonLeadingWildcard,
 }
 
 /// Fully qualified domain name (FQDN).
@@ -83,12 +86,16 @@ impl TryFrom<&str> for FullyQualifiedDomainName {
         if !value.ends_with('.') {
             Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified)
         } else {
-            let segments = Result::from_iter(
+            let segments: Vec<DomainSegment> = Result::from_iter(
                 value
                     .trim_end_matches('.')
                     .split('.')
                     .map(DomainSegment::try_from),
             )?;
+
+            if segments.iter().skip(1).any(DomainSegment::is_wildcard) {
+                return Err(FullyQualifiedDomainNameError::NonLeadingWildcard);
+            }
 
             Ok(FullyQualifiedDomainName(segments))
         }

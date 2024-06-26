@@ -16,6 +16,10 @@ impl DomainSegment {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+
+    pub fn is_wildcard(&self) -> bool {
+        self.0 == "*"
+    }
 }
 
 /// Produced when attempting to construct a [`DomainSegment`] from
@@ -38,9 +42,12 @@ pub enum DomainSegmentError {
     /// Domain segment is empty.
     #[error("segment is an empty string")]
     EmptyString,
+    /// Domain segments can be wildcards, but must then *only* contain the wildcard.
+    #[error("wildcard segments must have length 1")]
+    NonStandaloneWildcard,
 }
 
-const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz";
+const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz*";
 
 impl TryFrom<&str> for DomainSegment {
     type Error = DomainSegmentError;
@@ -54,6 +61,10 @@ impl TryFrom<&str> for DomainSegment {
 
         if value.len() > 63 {
             return Err(DomainSegmentError::TooLong(value.len()));
+        }
+
+        if value.contains("*") && value.len() != 1 {
+            return Err(DomainSegmentError::NonStandaloneWildcard);
         }
 
         if let Some(character) = value.chars().find(|c| !VALID_CHARACTERS.contains(*c)) {
@@ -138,5 +149,12 @@ mod tests {
             DomainSegment::try_from("abcd-"),
             Err(DomainSegmentError::IllegalHyphen(5))
         );
+    }
+
+    #[test]
+    fn wildcards() {
+        assert_eq!(DomainSegment::try_from("*").unwrap().as_ref(), "*");
+
+        assert!(DomainSegment::try_from("*").unwrap().is_wildcard())
     }
 }

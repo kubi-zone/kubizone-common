@@ -2,6 +2,7 @@ use std::fmt::Display;
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
 use crate::{
     fqdn::FullyQualifiedDomainNameError,
@@ -65,6 +66,18 @@ impl DomainName {
     }
 }
 
+/// Produced when attempting to construct a [`DomainName`] from
+/// an invalid string.
+#[derive(Error, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum DomainNameError {
+    /// Invalid Domain Segment.
+    #[error("segment error: {0}")]
+    SegmentError(DomainSegmentError),
+    /// Wildcards must only appear in the very first segment of a domain.
+    #[error("non-leading wildcard")]
+    NonLeadingWildcard,
+}
+
 impl Default for DomainName {
     fn default() -> Self {
         DomainName::Partial(PartiallyQualifiedDomainName::default())
@@ -84,7 +97,7 @@ impl From<FullyQualifiedDomainName> for DomainName {
 }
 
 impl TryFrom<String> for DomainName {
-    type Error = DomainSegmentError;
+    type Error = DomainNameError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
         Self::try_from(value.as_str())
@@ -92,7 +105,7 @@ impl TryFrom<String> for DomainName {
 }
 
 impl TryFrom<&str> for DomainName {
-    type Error = DomainSegmentError;
+    type Error = DomainNameError;
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match FullyQualifiedDomainName::try_from(value) {
@@ -100,7 +113,12 @@ impl TryFrom<&str> for DomainName {
             Err(FullyQualifiedDomainNameError::DomainIsPartiallyQualified) => Ok(
                 DomainName::Partial(PartiallyQualifiedDomainName::try_from(value).unwrap()),
             ),
-            Err(FullyQualifiedDomainNameError::SegmentError(err)) => Err(err),
+            Err(FullyQualifiedDomainNameError::SegmentError(err)) => {
+                Err(DomainNameError::SegmentError(err))
+            }
+            Err(FullyQualifiedDomainNameError::NonLeadingWildcard) => {
+                Err(DomainNameError::NonLeadingWildcard)
+            }
         }
     }
 }
