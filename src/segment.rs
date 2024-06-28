@@ -57,7 +57,7 @@ pub enum DomainSegmentError {
     NonStandaloneWildcard,
 }
 
-const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz*";
+const VALID_CHARACTERS: &str = "_-0123456789abcdefghijklmnopqrstuvwxyz*";
 
 impl TryFrom<&str> for DomainSegment {
     type Error = DomainSegmentError;

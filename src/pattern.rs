@@ -188,7 +188,7 @@ pub enum PatternSegmentError {
     MultipleWildcards,
 }
 
-const VALID_CHARACTERS: &str = "-0123456789abcdefghijklmnopqrstuvwxyz*";
+const VALID_CHARACTERS: &str = "_-0123456789abcdefghijklmnopqrstuvwxyz*";
 
 impl TryFrom<&str> for PatternSegment {
     type Error = PatternSegmentError;
