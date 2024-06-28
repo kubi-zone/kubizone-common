@@ -43,7 +43,7 @@ pub struct FullyQualifiedDomainName(Vec<DomainSegment>);
 
 impl FullyQualifiedDomainName {
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
-    pub fn iter(&self) -> impl Iterator<Item = &DomainSegment> + '_ {
+    pub fn iter(&self) -> core::slice::Iter<'_, DomainSegment> {
         self.0.iter()
     }
 

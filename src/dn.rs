@@ -53,6 +53,14 @@ impl DomainName {
         }
     }
 
+    /// Iterates over all [`DomainSegment`]s that make up the domain name.
+    pub fn iter(&self) -> core::slice::Iter<'_, DomainSegment> {
+        match self {
+            DomainName::Full(full) => full.iter(),
+            DomainName::Partial(partial) => partial.iter(),
+        }
+    }
+
     /// Returns the length of the domain.
     ///
     /// Note that fully qualified domain names will include the trailing dot
