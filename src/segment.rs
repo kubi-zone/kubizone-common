@@ -2,7 +2,7 @@ use std::{fmt::Display, ops::Add};
 
 use thiserror::Error;
 
-use crate::{FullyQualifiedDomainName, PartiallyQualifiedDomainName};
+use crate::{DomainName, FullyQualifiedDomainName, PartiallyQualifiedDomainName};
 
 /// Segment of a domain.
 ///
@@ -160,6 +160,28 @@ impl Add<&FullyQualifiedDomainName> for DomainSegment {
         let mut out = rhs.clone();
         out.0.insert(0, self);
         out
+    }
+}
+
+impl Add<DomainName> for DomainSegment {
+    type Output = DomainName;
+
+    fn add(self, rhs: DomainName) -> Self::Output {
+        match rhs {
+            DomainName::Full(full) => DomainName::Full(self + full),
+            DomainName::Partial(partial) => DomainName::Partial(self + partial),
+        }
+    }
+}
+
+impl Add<&DomainName> for DomainSegment {
+    type Output = DomainName;
+
+    fn add(self, rhs: &DomainName) -> Self::Output {
+        match rhs {
+            DomainName::Full(full) => DomainName::Full(self + full),
+            DomainName::Partial(partial) => DomainName::Partial(self + partial),
+        }
     }
 }
 
