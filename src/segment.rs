@@ -63,7 +63,7 @@ impl TryFrom<&str> for DomainSegment {
             return Err(DomainSegmentError::TooLong(value.len()));
         }
 
-        if value.contains("*") && value.len() != 1 {
+        if value.contains('*') && value.len() != 1 {
             return Err(DomainSegmentError::NonStandaloneWildcard);
         }
 
