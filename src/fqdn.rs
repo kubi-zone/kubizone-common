@@ -39,7 +39,7 @@ pub enum FullyQualifiedDomainNameError {
 ///
 /// See also [`PartiallyQualifiedDomainName`](crate::PartiallyQualifiedDomainName).
 #[derive(Default, Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct FullyQualifiedDomainName(Vec<DomainSegment>);
+pub struct FullyQualifiedDomainName(pub(crate) Vec<DomainSegment>);
 
 impl FullyQualifiedDomainName {
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
@@ -56,6 +56,11 @@ impl FullyQualifiedDomainName {
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
+    }
+
+    /// Coerce the domain name into a partially qualified one.
+    pub fn into_partially_qualified(self) -> PartiallyQualifiedDomainName {
+        PartiallyQualifiedDomainName(self.0)
     }
 }
 

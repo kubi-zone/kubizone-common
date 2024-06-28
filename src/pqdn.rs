@@ -41,7 +41,7 @@ pub enum PartiallyQualifiedDomainNameError {
 ///
 /// See also [`FullyQualifiedDomainName`]
 #[derive(Clone, Debug, Default, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct PartiallyQualifiedDomainName(Vec<DomainSegment>);
+pub struct PartiallyQualifiedDomainName(pub(crate) Vec<DomainSegment>);
 
 impl PartiallyQualifiedDomainName {
     /// Appends the fqdn to the end of the partial domain.
@@ -58,6 +58,11 @@ impl PartiallyQualifiedDomainName {
     #[allow(clippy::len_without_is_empty)]
     pub fn len(&self) -> usize {
         self.0.iter().map(|segment| segment.len()).sum::<usize>() + self.0.len()
+    }
+
+    /// Coerce the domain name into a fully qualified one.
+    pub fn into_fully_qualified(self) -> FullyQualifiedDomainName {
+        FullyQualifiedDomainName(self.0)
     }
 }
 

@@ -1,6 +1,8 @@
-use std::fmt::Display;
+use std::{fmt::Display, ops::Add};
 
 use thiserror::Error;
+
+use crate::{FullyQualifiedDomainName, PartiallyQualifiedDomainName};
 
 /// Segment of a domain.
 ///
@@ -9,14 +11,22 @@ use thiserror::Error;
 pub struct DomainSegment(String);
 
 impl DomainSegment {
+    /// Constructs a new DomainSegment without checking the validity of it.
+    pub const fn new_unchecked(segment: String) -> Self {
+        DomainSegment(segment)
+    }
+
+    /// Length in characters of the domain segment.
     pub fn len(&self) -> usize {
         self.0.len()
     }
 
+    /// Returns true if the segment is empty.
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 
+    // Returns true if the segment is equal to "*"
     pub fn is_wildcard(&self) -> bool {
         self.0 == "*"
     }
@@ -104,6 +114,52 @@ impl Display for DomainSegment {
 impl AsRef<str> for DomainSegment {
     fn as_ref(&self) -> &str {
         self.0.as_str()
+    }
+}
+
+impl Add for DomainSegment {
+    type Output = PartiallyQualifiedDomainName;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        PartiallyQualifiedDomainName::from_iter([self, rhs])
+    }
+}
+
+impl Add<PartiallyQualifiedDomainName> for DomainSegment {
+    type Output = PartiallyQualifiedDomainName;
+
+    fn add(self, mut rhs: PartiallyQualifiedDomainName) -> Self::Output {
+        rhs.0.insert(0, self);
+        rhs
+    }
+}
+
+impl Add<&PartiallyQualifiedDomainName> for DomainSegment {
+    type Output = PartiallyQualifiedDomainName;
+
+    fn add(self, rhs: &PartiallyQualifiedDomainName) -> Self::Output {
+        let mut out = rhs.clone();
+        out.0.insert(0, self);
+        out
+    }
+}
+
+impl Add<FullyQualifiedDomainName> for DomainSegment {
+    type Output = FullyQualifiedDomainName;
+
+    fn add(self, mut rhs: FullyQualifiedDomainName) -> Self::Output {
+        rhs.0.insert(0, self);
+        rhs
+    }
+}
+
+impl Add<&FullyQualifiedDomainName> for DomainSegment {
+    type Output = FullyQualifiedDomainName;
+
+    fn add(self, rhs: &FullyQualifiedDomainName) -> Self::Output {
+        let mut out = rhs.clone();
+        out.0.insert(0, self);
+        out
     }
 }
 
