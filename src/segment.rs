@@ -12,8 +12,8 @@ pub struct DomainSegment(String);
 
 impl DomainSegment {
     /// Constructs a new DomainSegment without checking the validity of it.
-    pub const fn new_unchecked(segment: String) -> Self {
-        DomainSegment(segment)
+    pub fn new_unchecked(segment: &str) -> Self {
+        DomainSegment(segment.to_string())
     }
 
     /// Length in characters of the domain segment.
