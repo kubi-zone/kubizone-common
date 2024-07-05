@@ -64,6 +64,11 @@ impl PartiallyQualifiedDomainName {
     pub fn into_fully_qualified(self) -> FullyQualifiedDomainName {
         FullyQualifiedDomainName(self.0)
     }
+
+    /// Coerce the domain name into a fully qualified one.
+    pub fn to_fully_qualified(&self) -> FullyQualifiedDomainName {
+        FullyQualifiedDomainName(self.0.clone())
+    }
 }
 
 impl FromIterator<DomainSegment> for PartiallyQualifiedDomainName {

@@ -53,6 +53,38 @@ impl DomainName {
         }
     }
 
+    /// Returns the contained [`DomainSegment`]s as a[`FullyQualifiedDomainName`]
+    pub fn into_fully_qualified(self) -> FullyQualifiedDomainName {
+        match self {
+            DomainName::Full(full) => full,
+            DomainName::Partial(partial) => partial.into_fully_qualified(),
+        }
+    }
+
+    /// Returns the contained [`DomainSegment`]s as a[`PartiallyQualifiedDomainName`]
+    pub fn into_partially_qualified(self) -> PartiallyQualifiedDomainName {
+        match self {
+            DomainName::Full(full) => full.into_partially_qualified(),
+            DomainName::Partial(partial) => partial,
+        }
+    }
+
+    /// Returns the contained [`DomainSegment`]s as a[`FullyQualifiedDomainName`]
+    pub fn to_fully_qualified(&self) -> FullyQualifiedDomainName {
+        match self {
+            DomainName::Full(full) => full.clone(),
+            DomainName::Partial(partial) => partial.to_fully_qualified(),
+        }
+    }
+
+    /// Returns the contained [`DomainSegment`]s as a[`PartiallyQualifiedDomainName`]
+    pub fn to_partially_qualified(&self) -> PartiallyQualifiedDomainName {
+        match self {
+            DomainName::Full(full) => full.to_partially_qualified(),
+            DomainName::Partial(partial) => partial.clone(),
+        }
+    }
+
     /// Iterates over all [`DomainSegment`]s that make up the domain name.
     pub fn iter(&self) -> core::slice::Iter<'_, DomainSegment> {
         match self {
